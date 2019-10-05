@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.adapters;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -32,8 +32,14 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import org.fedorahosted.freeotp.edit.DeleteActivity;
-import org.fedorahosted.freeotp.edit.EditActivity;
+import org.fedorahosted.freeotp.FreeOTPApplication;
+import org.fedorahosted.freeotp.R;
+import org.fedorahosted.freeotp.Token;
+import org.fedorahosted.freeotp.TokenCode;
+import org.fedorahosted.freeotp.views.TokenLayout;
+import org.fedorahosted.freeotp.activities.edit.DeleteActivity;
+import org.fedorahosted.freeotp.activities.edit.EditActivity;
+import org.fedorahosted.freeotp.storage.TokenPersistence;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +51,8 @@ public class TokenAdapter extends BaseReorderableAdapter {
     private final Map<String, TokenCode> mTokenCodes;
 
     public TokenAdapter(Context ctx) {
-        mTokenPersistence = new TokenPersistence(ctx);
+        mTokenPersistence = ((FreeOTPApplication)ctx.getApplicationContext())
+                .getTokenPersistence();;
         mLayoutInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mClipMan = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
         mTokenCodes = new HashMap<>();
@@ -115,13 +122,15 @@ public class TokenAdapter extends BaseReorderableAdapter {
         tl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TokenPersistence tp = new TokenPersistence(ctx);
+                TokenPersistence tp = ((FreeOTPApplication)ctx.getApplicationContext())
+                        .getTokenPersistence();;
 
                 // Increment the token.
                 Token token = tp.get(position);
                 TokenCode codes = token.generateCodes();
                 //save token. Image wasn't changed here, so just save it in sync
-                new TokenPersistence(ctx).save(token);
+                ((FreeOTPApplication)ctx.getApplicationContext())
+                        .getTokenPersistence().save(token);
 
                 // Copy code to clipboard.
                 mClipMan.setPrimaryClip(ClipData.newPlainText(null, codes.getCurrentCode()));

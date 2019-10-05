@@ -48,13 +48,14 @@ public class Token {
             'D', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q',
             'R', 'T', 'V', 'W', 'X', 'Y'};
 
-    private String issuerInt;
-    private String issuerExt;
-    private String issuerAlt;
-    private String label;
-    private String labelAlt;
-    private String image;
-    private String imageAlt;
+    //otpauth://[type]/[issuerExt]%3A[label]?secret=[secret]&counter=[counter]&digits=[digits]&algorithm=[algorithm]&issuer=[issuer]
+    private String issuerInt;//- the original issuer in URL's parameter.
+    private String issuerExt;//- the orignal issuer in URL's path
+    private String issuerAlt;//- user's issuer
+    private String label;//- the orignal label
+    private String labelAlt;//- user's label
+    private String image;//- the orignal image
+    private String imageAlt;//- user's image
     private TokenType type;
     private String algo;
     private byte[] secret;
@@ -75,6 +76,8 @@ public class Token {
         int i = path.indexOf(':');
         issuerExt = i < 0 ? "" : path.substring(0, i);
         issuerInt = uri.getQueryParameter("issuer");
+        if (issuerExt.isEmpty() && !issuerInt.isEmpty())
+            issuerExt = issuerInt;
         label = path.substring(i >= 0 ? i + 1 : 0);
 
         algo = uri.getQueryParameter("algorithm");
@@ -228,7 +231,7 @@ public class Token {
         else
             id = label;
 
-        return id;
+        return Constants.TOKEN_PREFIX_ID + id;
     }
 
     // NOTE: This changes internal data. You MUST save the token immediately.
@@ -342,5 +345,12 @@ public class Token {
             return Uri.parse(image);
 
         return null;
+    }
+
+    //- Return token image filename.
+    //- Token's image can be exist or not.
+    //- But if it is, then this is the name of it.
+    public String getImageFileName(){
+        return this.getID() + ".png";
     }
 }

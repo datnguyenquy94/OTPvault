@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.fedorahosted.freeotp.storage.TokenPersistence;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

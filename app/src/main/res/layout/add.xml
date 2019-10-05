@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   - FreeOTP
+   -
+   - Authors: Nathaniel McCallum <npmccallum@redhat.com>
+   -
+   - Copyright (C) 2013  Nathaniel McCallum, Red Hat
+   -
+   - Licensed under the Apache License, Version 2.0 (the "License");
+   - you may not use this file except in compliance with the License.
+   - You may obtain a copy of the License at
+   -
+   -     http://www.apache.org/licenses/LICENSE-2.0
+   -
+   - Unless required by applicable law or agreed to in writing, software
+   - distributed under the License is distributed on an "AS IS" BASIS,
+   - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   - See the License for the specific language governing permissions and
+   - limitations under the License.
+   -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageButton
+                style="?android:borderlessButtonStyle"
+                android:id="@+id/image"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:padding="4dp"
+                android:scaleType="centerInside"
+                android:src="@mipmap/ic_freeotp_logo_foreground" />
+
+            <EditText
+                android:id="@+id/issuer"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_toRightOf="@id/image"
+                android:layout_marginTop="4dp"
+                android:hint="jdoe@example.com"
+                android:inputType="textNoSuggestions"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:digits="0123456789abcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
+
+            <EditText
+                android:id="@+id/label"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_toRightOf="@id/image"
+                android:layout_below="@id/issuer"
+                android:layout_marginBottom="4dp"
+                android:hint="label"
+                android:inputType="textNoSuggestions"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:digits="0123456789abcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Type: "/>
+
+                    <Spinner
+                        android:id="@+id/type"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                        android:entries="@array/types" />
+
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Secret: "/>
+
+                    <EditText
+                        android:id="@+id/secret"
+                        android:layout_width="match_parent"
+                        android:hint="Your secret key"
+                        android:inputType="textNoSuggestions"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+                </TableRow>
+                <TableRow android:id="@+id/HOTPCounter" android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Counter: "/>
+                    <EditText
+                        android:id="@+id/counter"
+                        android:layout_width="match_parent"
+                        android:text="1"
+                        android:digits="0123456789"
+                        android:inputType="numberDecimal|textNoSuggestions"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Period: "/>
+
+                    <EditText
+                        android:id="@+id/period"
+                        android:layout_width="match_parent"
+                        android:text="30"
+                        android:digits="0123456789"
+                        android:inputType="numberDecimal|textNoSuggestions"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Digits: "/>
+
+                    <EditText
+                        android:id="@+id/digits"
+                        android:layout_width="match_parent"
+                        android:text="6"
+                        android:digits="0123456789"
+                        android:inputType="numberDecimal|textNoSuggestions"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Algorithm: "/>
+
+                    <Spinner
+                        android:id="@+id/algorithm"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                        android:entries="@array/algorithms" />
+                </TableRow>
+            </TableLayout>
+
+
+            <!--<EditText-->
+                <!--android:id="@+id/type"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="48dp"-->
+                <!--android:layout_marginBottom="4dp"-->
+                <!--android:hint="type"-->
+                <!--android:inputType="textNoSuggestions"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmallInverse" />-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/secret"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="48dp"-->
+                <!--android:layout_below="@id/type"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:hint="secret"-->
+                <!--android:inputType="textNoSuggestions"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmallInverse" />-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/period"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="48dp"-->
+                <!--android:layout_below="@id/secret"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:hint="period"-->
+                <!--android:inputType="textNoSuggestions"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmallInverse" />-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/digits"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="48dp"-->
+                <!--android:layout_below="@id/period"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:hint="digits"-->
+                <!--android:inputType="textNoSuggestions"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmallInverse" />-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/algorithm"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="48dp"-->
+                <!--android:layout_below="@id/digits"-->
+                <!--android:layout_marginTop="4dp"-->
+                <!--android:hint="algorithm"-->
+                <!--android:inputType="textNoSuggestions"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmallInverse" />-->
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/test_passcode"
+            style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:text="@string/test_passcode" />
+
+    </LinearLayout>
+
+    <View style="@style/Divider" />
+
+    <LinearLayout style="@style/Dialog.Button.Layout">
+        <Button
+            android:id="@+id/cancel"
+            style="@style/Dialog.Button"
+            android:text="@android:string/cancel" />
+
+        <Button
+            android:id="@+id/add"
+            style="@style/Dialog.Button"
+            android:enabled="false"
+            android:text="@string/add" />
+    </LinearLayout>
+</LinearLayout>

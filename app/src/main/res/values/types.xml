@@ -1,0 +1,6 @@
+<resources>
+    <string-array name="types">
+        <item>TOTP</item>
+        <item>HOTP</item>
+    </string-array>
+</resources>

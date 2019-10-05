@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.add;
+package org.fedorahosted.freeotp.activities.add;
 
 import android.content.Context;
 import android.content.Intent;

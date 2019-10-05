@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -31,6 +31,11 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import org.fedorahosted.freeotp.R;
+import org.fedorahosted.freeotp.Token;
+import org.fedorahosted.freeotp.TokenCode;
+import org.fedorahosted.freeotp.views.ProgressCircle;
 
 public class TokenLayout extends FrameLayout implements View.OnClickListener, Runnable {
     private ProgressCircle mProgressInner;

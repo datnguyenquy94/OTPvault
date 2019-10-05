@@ -20,13 +20,14 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.add;
+package org.fedorahosted.freeotp.activities.add;
 
+import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.TokenPersistence;
+import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.storage.TokenPersistence;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +48,7 @@ import static io.fotoapparat.parameter.selector.LensPositionSelectors.back;
 import static io.fotoapparat.parameter.selector.Selectors.firstAvailable;
 import static io.fotoapparat.parameter.selector.SizeSelectors.biggestSize;
 
-public class ScanActivity extends Activity {
+public class ScanActivity extends AbstractActivity {
     private Fotoapparat fotoapparat;
     private static ScanBroadcastReceiver receiver;
 
@@ -78,7 +79,8 @@ public class ScanActivity extends Activity {
         this.unregisterReceiver(receiver);
 
         //check if token already exists
-        if (new TokenPersistence(ScanActivity.this).tokenExists(token)) {
+        if (((FreeOTPApplication)this.getApplicationContext())
+                .getTokenPersistence().tokenExists(token.getID())) {
             finish();
             return;
         }
@@ -152,6 +154,12 @@ public class ScanActivity extends Activity {
     protected void onStart() {
         super.onStart();
         fotoapparat.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.finishAndRemoveTask();
     }
 
     @Override

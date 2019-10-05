@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.storage;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,99 +29,107 @@ import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Picasso;
 
+import org.fedorahosted.freeotp.FreeOTPApplication;
+import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.Token.TokenUriInvalidException;
+import org.fedorahosted.freeotp.activities.MainActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 public class TokenPersistence {
-    private static final String NAME  = "tokens";
-    private static final String ORDER = "tokenOrder";
-    private final SharedPreferences prefs;
+
     private final Gson gson;
+    private final IssuerStorage issuerStorage;
+    private final TokenStorage tokenStorage;
 
-    private List<String> getTokenOrder() {
-        Type type = new TypeToken<List<String>>(){}.getType();
-        String str = prefs.getString(ORDER, "[]");
-        List<String> order = gson.fromJson(str, type);
-        return order == null ? new LinkedList<String>() : order;
-    }
-
-    private SharedPreferences.Editor setTokenOrder(List<String> order) {
-        return prefs.edit().putString(ORDER, gson.toJson(order));
-    }
+    private boolean isFilterOn = false;
+    private String issuerFilterParameter = "";
 
     public TokenPersistence(Context ctx) {
-        prefs = ctx.getApplicationContext().getSharedPreferences(NAME, Context.MODE_PRIVATE);
-        gson = new Gson();
+        this.gson = ((FreeOTPApplication) ctx.getApplicationContext()).getGson();
+        this.issuerStorage = new IssuerStorage((FreeOTPApplication) ctx.getApplicationContext(), gson);
+        this.tokenStorage = new TokenStorage((FreeOTPApplication) ctx.getApplicationContext(), gson);
     }
 
     public int length() {
-        return getTokenOrder().size();
+        if (this.isFilterOn)
+            return this.issuerStorage.getIssuerTokenIndexLength(this.issuerFilterParameter);
+        else
+            return this.tokenStorage.getTokenIndexLength();
     }
 
-    public boolean tokenExists(Token token) {
-        return prefs.contains(token.getID());
+    public boolean tokenExists(String tokenId) {
+        return this.tokenStorage.tokenExists(tokenId);
     }
 
     public Token get(int position) {
-        String key = getTokenOrder().get(position);
-        String str = prefs.getString(key, null);
-
-        try {
-            return gson.fromJson(str, Token.class);
-        } catch (JsonSyntaxException jse) {
-            // Backwards compatibility for URL-based persistence.
-            try {
-                return new Token(str, true);
-            } catch (TokenUriInvalidException tuie) {
-                tuie.printStackTrace();
-            }
-        }
-
-        return null;
+        if (this.isFilterOn)
+            return this.tokenStorage.get(this.issuerStorage.getKey(this.issuerFilterParameter, position));
+        else
+            return this.tokenStorage.get(position);
     }
 
-    public void save(Token token) {
-        String key = token.getID();
+    public void save(Token newToken) {
+        try {
+            String key = newToken.getID();
 
-        //if token exists, just update it
-        if (prefs.contains(key)) {
-            prefs.edit().putString(token.getID(), gson.toJson(token)).apply();
-            return;
+            if (this.tokenStorage.tokenExists(key)) {//if token exists, check issuer labels before save and update token.
+                Token oldToken = this.tokenStorage.get(key);
+                if (oldToken != null &&
+                    oldToken.getIssuer().compareTo(newToken.getIssuer()) != 0) {//- update issuer token index.
+                    //- remove token key on old issuerTokenIndex.
+                    this.issuerStorage.removeTokenKeyOnIssuerIndex(oldToken.getIssuer(), key);
+                    //- add token key on new isserTokenIndex.
+                    this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), key);
+                }
+            } else {//- new token, add issuer labels before save token.
+                this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), key);//- add token key on isserTokenIndex.
+            }
+            this.tokenStorage.save(newToken);
+        } catch(NullPointerException npE){
+            npE.printStackTrace();
         }
-
-        List<String> order = getTokenOrder();
-        order.add(0, key);
-        setTokenOrder(order).putString(key, gson.toJson(token)).apply();
     }
 
     public void move(int fromPosition, int toPosition) {
-        if (fromPosition == toPosition)
-            return;
-
-        List<String> order = getTokenOrder();
-        if (fromPosition < 0 || fromPosition > order.size())
-            return;
-        if (toPosition < 0 || toPosition > order.size())
-            return;
-
-        order.add(toPosition, order.remove(fromPosition));
-        setTokenOrder(order).apply();
+        if (this.isFilterOn)
+            this.issuerStorage.move(this.issuerFilterParameter, fromPosition, toPosition);
+        else
+            this.tokenStorage.move(fromPosition, toPosition);
     }
 
     public void delete(int position) {
-        List<String> order = getTokenOrder();
-        String key = order.remove(position);
-        setTokenOrder(order).remove(key).apply();
+        Token token;
+        if (this.isFilterOn)
+            token = this.tokenStorage.get(this.issuerStorage.getKey(this.issuerFilterParameter, position));
+        else
+            token = this.tokenStorage.get(position);
+
+        String key = token.getID();
+
+        this.tokenStorage.delete(key);
+        this.issuerStorage.removeTokenKeyOnIssuerIndex(token.getIssuer(), key);//- remove token key on issuerTokenIndex.
+    }
+
+    public String[] getIssuers(){
+        return this.issuerStorage.getIssuers();
+    }
+
+    public void setFilter(String issuer){
+        if (issuer != null && !issuer.isEmpty())
+            this.isFilterOn = true;
+        else
+            this.isFilterOn = false;
+        this.issuerFilterParameter = issuer;
     }
 
     /**
@@ -131,8 +139,9 @@ public class TokenPersistence {
      */
     public static void saveAsync(Context context, final Token token) {
         File outFile = null;
+        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
         if(token.getImage() != null)
-            outFile = new File(context.getFilesDir(), "img_" + UUID.randomUUID().toString() + ".png");
+            outFile = new File(application.getImageFolder(), token.getImageFileName());
         new SaveTokenTask().execute(new TaskParams(token, outFile, context));
     }
 
@@ -189,8 +198,11 @@ public class TokenPersistence {
      * Saves token in PostExecute
      */
     private static class SaveTokenTask extends AsyncTask<TaskParams, Void, ReturnParams> {
+        private TokenPersistence tokenPersistence;
         protected ReturnParams doInBackground(TaskParams... params) {
             final TaskParams taskParams = params[0];
+            this.tokenPersistence = ((FreeOTPApplication)taskParams.getContext().getApplicationContext())
+                    .getTokenPersistence();
             if(taskParams.getToken().getImage() != null) {
                 try {
                     Bitmap bitmap = Picasso.with(taskParams.getContext())
@@ -219,7 +231,7 @@ public class TokenPersistence {
         protected void onPostExecute(ReturnParams returnParams) {
             super.onPostExecute(returnParams);
             //we downloaded the image, now save it normally
-            new TokenPersistence(returnParams.getContext()).save(returnParams.getToken());
+            this.tokenPersistence.save(returnParams.getToken());
             //refresh TokenAdapter
             returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
         }

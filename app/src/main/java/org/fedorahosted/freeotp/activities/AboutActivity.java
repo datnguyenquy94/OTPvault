@@ -18,9 +18,8 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.activities;
 
-import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -29,11 +28,20 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
-public class AboutActivity extends Activity {
+import org.fedorahosted.freeotp.R;
+import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+
+public class AboutActivity extends AbstractActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.finishAndRemoveTask();
     }
 
     @Override
