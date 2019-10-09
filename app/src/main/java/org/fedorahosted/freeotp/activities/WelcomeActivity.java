@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,6 +20,8 @@ import androidx.preference.PreferenceManager;
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.activities.MainActivity;
+
+import java.io.File;
 
 public class WelcomeActivity extends Activity implements View.OnClickListener, TextWatcher{
 

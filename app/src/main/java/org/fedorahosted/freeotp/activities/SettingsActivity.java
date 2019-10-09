@@ -76,7 +76,7 @@ public class SettingsActivity extends AbstractAppCompatActivity {
         private FreeOTPApplication application;
 
         private Preference backupNowPreference;
-        private Preference restoreNowPreference;
+        private Preference importNowPreference;
         private SeekBarPreference lockTimeOutPreference;
         private Preference backupLocationPreference;
 
@@ -90,7 +90,7 @@ public class SettingsActivity extends AbstractAppCompatActivity {
             this.lockTimeOutPreference = findPreference("lockTimeOut");
             this.backupLocationPreference = findPreference("backupLocation");
             this.backupNowPreference = findPreference("backupNow");
-            this.restoreNowPreference = findPreference("restoreNow");
+            this.importNowPreference = findPreference("importNow");
 
             if (this.backupLocationPreference.getSharedPreferences().getString(this.backupLocationPreference.getKey(), "").isEmpty())
                 this.backupLocationPreference.getSharedPreferences().edit()
@@ -98,7 +98,7 @@ public class SettingsActivity extends AbstractAppCompatActivity {
                         .commit();
 
             this.backupNowPreference.setOnPreferenceClickListener(this);
-            this.restoreNowPreference.setOnPreferenceClickListener(this);
+            this.importNowPreference.setOnPreferenceClickListener(this);
             this.backupLocationPreference.setOnPreferenceClickListener(this);
             this.lockTimeOutPreference.setOnPreferenceChangeListener(this);
 

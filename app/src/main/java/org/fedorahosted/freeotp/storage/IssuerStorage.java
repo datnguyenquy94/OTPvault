@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 
-import org.fedorahosted.freeotp.Constants;
+import org.fedorahosted.freeotp.common.Constants;
 import org.fedorahosted.freeotp.FreeOTPApplication;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class IssuerStorage {
     public void addTokenKeyOnIssuerIndex(String issuer, String key){
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
         if (sharedPreferences != null) {
-            if (!this.issuers.contains(issuer)) {//- new isser, add it to LstIssuer
+            if (!this.issuers.contains(issuer)) {//- new issuer, add it to LstIssuer
                 this.issuers.add(issuer);
                 this.updateIssuers(this.issuers);
             }

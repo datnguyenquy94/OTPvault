@@ -27,6 +27,7 @@ import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.common.Callback;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 
 import android.content.Intent;
@@ -130,7 +131,8 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
             if (requestCode == REQUEST_IMAGE_OPEN) {
                 //mImageDisplay is set in showImage
                 showImage(data.getData());
-                token.setImage(mImageDisplay);
+                //- Not set yet. Set this mean it auto delete the current image.
+                // token.setImage(mImageDisplay);
             }
             else {
                 Toast.makeText(EditActivity.this, R.string.error_image_open, Toast.LENGTH_LONG).show();
@@ -174,14 +176,25 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 break;
 
             case R.id.save:
-                TokenPersistence tp = ((FreeOTPApplication)this.getApplicationContext())
+                TokenPersistence tokenPersistence = ((FreeOTPApplication)this.getApplicationContext())
                         .getTokenPersistence();;
-                Token token = tp.get(getPosition());
+                Token token = tokenPersistence.get(getPosition());
                 token.setIssuer(mIssuer.getText().toString());
                 token.setLabel(mLabel.getText().toString());
-                token.setImage(mImageDisplay);
-                TokenPersistence.saveAsync(this, token);
-
+                if (token.getImage() == null || token.getImage().compareTo(mImageDisplay) != 0)
+                    token.setImage(mImageDisplay);
+                TokenPersistence.updateAsync(application,
+                        mPosition,
+                        token,
+                        new Callback() {
+                            @Override
+                            public void success(Token token) { EditActivity.this.finish(); }
+                            @Override
+                            public void error(String errorMessage) {
+                                Toast.makeText(application, errorMessage, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                break;
             case R.id.cancel:
                 finish();
                 break;

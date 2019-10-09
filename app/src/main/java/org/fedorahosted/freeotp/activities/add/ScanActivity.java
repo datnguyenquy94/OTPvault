@@ -34,8 +34,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.telecom.Call;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
+
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import io.fotoapparat.Fotoapparat;
@@ -79,38 +82,49 @@ public class ScanActivity extends AbstractActivity {
         this.unregisterReceiver(receiver);
 
         //check if token already exists
-        if (((FreeOTPApplication)this.getApplicationContext())
-                .getTokenPersistence().tokenExists(token.getID())) {
-            finish();
-            return;
-        }
+//        if (((FreeOTPApplication)this.getApplicationContext())
+//                .getTokenPersistence().tokenExists(token.getID())) {
+//            finish();
+//            return;
+//        }
 
-        TokenPersistence.saveAsync(ScanActivity.this, token);
-        if (token == null || token.getImage() == null) {
-            finish();
-            return;
-        }
-
-        final ImageView image = (ImageView) findViewById(R.id.image);
-        Picasso.with(ScanActivity.this)
-                .load(token.getImage())
-                .placeholder(R.drawable.scan)
-                .into(image, new Callback() {
+        TokenPersistence.addAsync(this.application, token,
+                new org.fedorahosted.freeotp.common.Callback() {
                     @Override
-                    public void onSuccess() {
-                        findViewById(R.id.progress).setVisibility(View.INVISIBLE);
-                        image.setAlpha(0.9f);
-                        image.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                finish();
-                            }
-                        }, 2000);
+                    public void success(Token resultToken) {
+                        if (resultToken == null || resultToken.getImage() == null) {
+                            finish();
+                            return;
+                        }
+
+                        final ImageView image = ScanActivity.this.findViewById(R.id.image);
+                        Picasso.with(ScanActivity.this)
+                                .load(resultToken.getImage())
+                                .placeholder(R.drawable.scan)
+                                .into(image, new Callback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        findViewById(R.id.progress).setVisibility(View.INVISIBLE);
+                                        image.setAlpha(0.9f);
+                                        image.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                finish();
+                                            }
+                                        }, 2000);
+                                    }
+
+                                    @Override
+                                    public void onError() {
+                                        finish();
+                                    }
+                                });
                     }
 
                     @Override
-                    public void onError() {
-                        finish();
+                    public void error(String errorMessage) {
+                        Toast.makeText(application, errorMessage, Toast.LENGTH_LONG).show();
+                        ScanActivity.this.finish();
                     }
                 });
     }

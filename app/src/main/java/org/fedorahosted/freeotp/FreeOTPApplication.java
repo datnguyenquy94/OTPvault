@@ -16,6 +16,7 @@ import androidx.security.crypto.EncryptedSharedPreferences;
 
 import org.fedorahosted.freeotp.activities.edit.EditActivity;
 import org.fedorahosted.freeotp.asynctaskes.IdleTimeChecker;
+import org.fedorahosted.freeotp.common.Constants;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 
 import java.io.File;

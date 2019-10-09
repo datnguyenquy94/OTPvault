@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.common;
 
 public class Constants {
 

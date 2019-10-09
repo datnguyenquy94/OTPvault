@@ -29,10 +29,15 @@ import java.util.Locale;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import android.app.Application;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Environment;
 
 import com.google.android.apps.authenticator.Base32String;
 import com.google.android.apps.authenticator.Base32String.DecodingException;
+
+import org.fedorahosted.freeotp.common.Constants;
 
 public class Token {
     public static class TokenUriInvalidException extends Exception {
@@ -49,13 +54,9 @@ public class Token {
             'R', 'T', 'V', 'W', 'X', 'Y'};
 
     //otpauth://[type]/[issuerExt]%3A[label]?secret=[secret]&counter=[counter]&digits=[digits]&algorithm=[algorithm]&issuer=[issuer]
-    private String issuerInt;//- the original issuer in URL's parameter.
-    private String issuerExt;//- the orignal issuer in URL's path
-    private String issuerAlt;//- user's issuer
+    private String issuer;//- the orignal issuer
     private String label;//- the orignal label
-    private String labelAlt;//- user's label
     private String image;//- the orignal image
-    private String imageAlt;//- user's image
     private TokenType type;
     private String algo;
     private byte[] secret;
@@ -74,10 +75,9 @@ public class Token {
             throw new TokenUriInvalidException();
 
         int i = path.indexOf(':');
-        issuerExt = i < 0 ? "" : path.substring(0, i);
-        issuerInt = uri.getQueryParameter("issuer");
-        if (issuerExt.isEmpty() && !issuerInt.isEmpty())
-            issuerExt = issuerInt;
+        issuer = i < 0 ? "" : path.substring(0, i);
+        if (issuer.isEmpty())
+            issuer = uri.getQueryParameter("issuer");
         label = path.substring(i >= 0 ? i + 1 : 0);
 
         algo = uri.getQueryParameter("algorithm");
@@ -95,7 +95,7 @@ public class Token {
             if (d == null)
                 d = "6";
             digits = Integer.parseInt(d);
-            if (!issuerExt.equals("Steam") && digits != 6 && digits != 8)
+            if (!issuer.equals("Steam") && digits != 6 && digits != 8)
                 throw new TokenUriInvalidException();
         } catch (NumberFormatException e) {
             throw new TokenUriInvalidException();
@@ -186,7 +186,7 @@ public class Token {
             binary |= (digest[off + 3] & 0xff);
 
             String hotp = "";
-            if (issuerExt.equals("Steam")) {
+            if (issuer.equals("Steam")) {
                 for (int i = 0; i < digits; i++) {
                     hotp += STEAMCHARS[binary % STEAMCHARS.length];
                     binary /= STEAMCHARS.length;
@@ -224,10 +224,8 @@ public class Token {
 
     public String getID() {
         String id;
-        if (issuerInt != null && !issuerInt.equals(""))
-            id = issuerInt + ":" + label;
-        else if (issuerExt != null && !issuerExt.equals(""))
-            id = issuerExt + ":" + label;
+        if (issuer != null && !issuer.equals(""))
+            id = issuer+ ":" + label;
         else
             id = label;
 
@@ -236,24 +234,20 @@ public class Token {
 
     // NOTE: This changes internal data. You MUST save the token immediately.
     public void setIssuer(String issuer) {
-        issuerAlt = (issuer == null || issuer.equals(this.issuerExt)) ? null : issuer;
+        this.issuer = issuer;
     }
 
     public String getIssuer() {
-        if (issuerAlt != null)
-            return issuerAlt;
-        return issuerExt != null ? issuerExt : "";
+        return this.issuer;
     }
 
     // NOTE: This changes internal data. You MUST save the token immediately.
     public void setLabel(String label) {
-        labelAlt = (label == null || label.equals(this.label)) ? null : label;
+        this.label = label;
     }
 
     public String getLabel() {
-        if (labelAlt != null)
-            return labelAlt;
-        return label != null ? label : "";
+        return this.label;
     }
 
     public int getDigits() {
@@ -286,11 +280,11 @@ public class Token {
     }
 
     public Uri toUri() {
-        String issuerLabel = !issuerExt.equals("") ? issuerExt + ":" + label : label;
+        String issuerLabel = !issuer.equals("") ? issuer + ":" + label : label;
 
         Uri.Builder builder = new Uri.Builder().scheme("otpauth").path(issuerLabel)
                 .appendQueryParameter("secret", Base32String.encode(secret))
-                .appendQueryParameter("issuer", issuerInt == null ? issuerExt : issuerInt)
+                .appendQueryParameter("issuer", issuer)
                 .appendQueryParameter("algorithm", algo)
                 .appendQueryParameter("digits", Integer.toString(digits))
                 .appendQueryParameter("period", Integer.toString(period));
@@ -319,9 +313,18 @@ public class Token {
     public void deleteImage() {
         Uri imageUri = getImage();
         if (imageUri != null) {
+
             File image = new File(imageUri.getPath());
-            if (image.exists())
+            File applicationFolder  = image.getParentFile().getParentFile().getParentFile();
+            //- Only delete if image belong to application's folder.
+            if (image.exists() &&
+                image.getParentFile() != null &&
+                image.getParentFile().getParentFile() !=null &&
+                image.getParentFile().getParentFile().getParentFile() != null &&
+                applicationFolder.exists() &&
+                applicationFolder.getName().compareTo(BuildConfig.APPLICATION_ID) == 0){
                 image.delete();
+            }
         }
     }
 
@@ -329,22 +332,26 @@ public class Token {
         //delete old token image, before assigning the new one
         deleteImage();
 
-        imageAlt = null;
         if (image == null)
-            return;
-
-        if (this.image == null || !Uri.parse(this.image).equals(image))
-            imageAlt = image.toString();
+            this.image = null;
+        else
+            this.image = image.toString();
+        return;
     }
 
     public Uri getImage() {
-        if (imageAlt != null)
-            return Uri.parse(imageAlt);
-
         if (image != null)
             return Uri.parse(image);
 
         return null;
+    }
+
+    public long getCounter() {
+        return counter;
+    }
+
+    public void setCounter(long counter) {
+        this.counter = counter;
     }
 
     //- Return token image filename.

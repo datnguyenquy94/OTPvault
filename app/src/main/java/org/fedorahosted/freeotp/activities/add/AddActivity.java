@@ -3,6 +3,7 @@ package org.fedorahosted.freeotp.activities.add;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telecom.Call;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,8 +20,9 @@ import com.squareup.picasso.Picasso;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.common.Callback;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
-import org.fedorahosted.freeotp.Utils;
+import org.fedorahosted.freeotp.common.Utils;
 
 public class AddActivity extends AbstractActivity implements TextWatcher, View.OnClickListener, AdapterView.OnItemSelectedListener {
     private EditText            mIssuer;
@@ -94,8 +96,6 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
 
             case R.id.add:
                 try {
-//                    TokenPersistence tp = ((FreeOTPApplication)this.getApplicationContext())
-//                            .getTokenPersistence();
                     Token token = new Token(Utils.OTP_URI_BUILDER(
                             mType.getSelectedItem().toString(),
                             mIssuer.getText().toString(),
@@ -106,9 +106,18 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
                             mAlgorithm.getSelectedItem().toString()
                     ));
                     token.setImage(mImageDisplay);
+                    TokenPersistence.addAsync(this.application,
+                            token,
+                            new Callback() {
+                                @Override
+                                public void success(Token token) { AddActivity.this.finish(); }
+                                @Override
+                                public void error(String errorMessage) {
+                                    Toast.makeText(application, errorMessage, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                    break;
 
-                    TokenPersistence.saveAsync(this, token);
-                    finish();
                 } catch(Exception e){
                     e.printStackTrace();
                 }

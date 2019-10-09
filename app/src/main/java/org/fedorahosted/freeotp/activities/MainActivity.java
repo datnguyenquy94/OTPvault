@@ -45,6 +45,7 @@ import com.google.android.material.navigation.NavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 
+import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
@@ -260,13 +261,16 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
+
+        //- Add token by another app's intent. Exmple: Firefox send a totp's uri to this app.
         Uri uri = intent.getData();
         if (uri != null) {
-            try {
-                TokenPersistence.saveAsync(this, new Token(uri));
-            } catch (Token.TokenUriInvalidException e) {
-                e.printStackTrace();
-            }
+            Log.d(LOG_TAG, "Not support yet, onNewIntent:" + uri.getPath());
+//            try {
+//                TokenPersistence.saveAsync(this, new Token(uri));
+//            } catch (Token.TokenUriInvalidException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 

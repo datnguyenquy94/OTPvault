@@ -22,28 +22,19 @@ package org.fedorahosted.freeotp.storage;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.squareup.picasso.Picasso;
 
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.Token.TokenUriInvalidException;
+import org.fedorahosted.freeotp.common.Callback;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.activities.MainActivity;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
 
 public class TokenPersistence {
 
@@ -78,25 +69,42 @@ public class TokenPersistence {
             return this.tokenStorage.get(position);
     }
 
-    public void save(Token newToken) {
+    public void add(Token newToken) throws Exception {
         try {
-            String key = newToken.getID();
-
-            if (this.tokenStorage.tokenExists(key)) {//if token exists, check issuer labels before save and update token.
-                Token oldToken = this.tokenStorage.get(key);
-                if (oldToken != null &&
-                    oldToken.getIssuer().compareTo(newToken.getIssuer()) != 0) {//- update issuer token index.
-                    //- remove token key on old issuerTokenIndex.
-                    this.issuerStorage.removeTokenKeyOnIssuerIndex(oldToken.getIssuer(), key);
-                    //- add token key on new isserTokenIndex.
-                    this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), key);
-                }
-            } else {//- new token, add issuer labels before save token.
-                this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), key);//- add token key on isserTokenIndex.
-            }
-            this.tokenStorage.save(newToken);
+            if (this.tokenStorage.tokenExists(newToken.getID()))
+                throw new Exception("Token exist.");
+            this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), newToken.getID());//- add token key on isserTokenIndex.
+            this.tokenStorage.add(newToken);
         } catch(NullPointerException npE){
             npE.printStackTrace();
+            throw new Exception("Internal error...");
+        }
+    }
+
+    public Token update(int position, Token editedToken) throws Exception {
+        try {
+            Token oldToken = this.get(position);
+            if (oldToken == null)
+                throw new Exception("Token not found.");
+            if (editedToken.getIssuer() == null || editedToken.getLabel() == null)
+                throw new Exception("Issuer or Label not found.");
+
+            editedToken = this.tokenStorage.update(oldToken,
+                    editedToken.getIssuer(),
+                    editedToken.getLabel(),
+                    editedToken.getImage(),
+                    editedToken.getCounter());
+
+            if (oldToken.getIssuer().compareTo(editedToken.getIssuer()) != 0) {//- update issuer token index.
+                //- remove token key on old issuerTokenIndex.
+                this.issuerStorage.removeTokenKeyOnIssuerIndex(oldToken.getIssuer(), oldToken.getID());
+                //- add token key on new isserTokenIndex.
+                this.issuerStorage.addTokenKeyOnIssuerIndex(editedToken.getIssuer(), editedToken.getID());
+            }
+            return editedToken;
+        } catch(NullPointerException npE){
+            npE.printStackTrace();
+            throw new Exception("Internal error...");
         }
     }
 
@@ -108,11 +116,7 @@ public class TokenPersistence {
     }
 
     public void delete(int position) {
-        Token token;
-        if (this.isFilterOn)
-            token = this.tokenStorage.get(this.issuerStorage.getKey(this.issuerFilterParameter, position));
-        else
-            token = this.tokenStorage.get(position);
+        Token token = this.get(position);
 
         String key = token.getID();
 
@@ -133,16 +137,68 @@ public class TokenPersistence {
     }
 
     /**
-     * Save token async, because Image needs to be downloaded/copied to storage
+     * Update token async, because Image needs to be downloaded/copied to storage
+     * @param context Application Context
+     * @param editedToken Token (with Image, Image will be saved by the async task)
+     */
+    public static void updateAsync(Context context,
+                                   final int position,
+                                   final Token editedToken,
+                                   final Callback callback) {
+        File outFile = null;
+        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+        if(editedToken.getImage() != null)
+            outFile = new File(application.getImageFolder(), editedToken.getImageFileName());
+        new TokenAsyncTask(application, outFile, editedToken){
+            @Override
+            protected void onPostExecute(ReturnParams returnParams) {
+                super.onPostExecute(returnParams);
+                //we downloaded the image, now save/update it normally
+                try {
+                    Token resultToken = ((FreeOTPApplication)returnParams.context.getApplicationContext())
+                            .getTokenPersistence().update(position, returnParams.getToken());
+                    callback.success(resultToken);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    callback.error(e.getMessage());
+                } finally {
+                    //refresh TokenAdapter
+                    returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
+                }
+            }
+        }.execute();
+    }
+
+    /**
+     * Add token async, because Image needs to be downloaded/copied to storage
      * @param context Application Context
      * @param token Token (with Image, Image will be saved by the async task)
      */
-    public static void saveAsync(Context context, final Token token) {
+    public static void addAsync(Context context,
+                                final Token token,
+                                final Callback callback) {
         File outFile = null;
         FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
         if(token.getImage() != null)
             outFile = new File(application.getImageFolder(), token.getImageFileName());
-        new SaveTokenTask().execute(new TaskParams(token, outFile, context));
+        new TokenAsyncTask(application, outFile, token){
+            @Override
+            protected void onPostExecute(ReturnParams returnParams) {
+                super.onPostExecute(returnParams);
+                //we downloaded the image, now save/update it normally
+                try {
+                    ((FreeOTPApplication)returnParams.context.getApplicationContext())
+                            .getTokenPersistence().add(returnParams.getToken());
+                    callback.success(returnParams.getToken());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    callback.error(e.getMessage());
+                } finally {
+                    //refresh TokenAdapter
+                    returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
+                }
+            }
+        }.execute();
     }
 
     /**
@@ -169,71 +225,65 @@ public class TokenPersistence {
     /**
      * Data class for SaveTokenTask
      */
-    private static class TaskParams {
-        private final File outFile;
-        private final Context mContext;
-        private final Token token;
-
-        public TaskParams(Token token, File outFile, Context mContext) {
-            this.token = token;
-            this.outFile = outFile;
-            this.mContext = mContext;
-        }
-
-        public Context getContext() {
-            return mContext;
-        }
-
-        public Token getToken() {
-            return token;
-        }
-
-        public File getOutFile() {
-            return outFile;
-        }
-    }
+//    private static class TaskParams {
+//        private final File outFile;
+//        private final Context mContext;
+//        private final Token token;
+//
+//        public TaskParams(Token token, File outFile, Context mContext) {
+//            this.token = token;
+//            this.outFile = outFile;
+//            this.mContext = mContext;
+//        }
+//
+//        public Context getContext() {
+//            return mContext;
+//        }
+//
+//        public Token getToken() {
+//            return token;
+//        }
+//
+//        public File getOutFile() {
+//            return outFile;
+//        }
+//    }
 
     /**
      * Downloads/copies images to FreeOTP storage
      * Saves token in PostExecute
      */
-    private static class SaveTokenTask extends AsyncTask<TaskParams, Void, ReturnParams> {
-        private TokenPersistence tokenPersistence;
-        protected ReturnParams doInBackground(TaskParams... params) {
-            final TaskParams taskParams = params[0];
-            this.tokenPersistence = ((FreeOTPApplication)taskParams.getContext().getApplicationContext())
-                    .getTokenPersistence();
-            if(taskParams.getToken().getImage() != null) {
-                try {
-                    Bitmap bitmap = Picasso.with(taskParams.getContext())
-                            .load(taskParams.getToken()
-                            .getImage())
-                            .resize(200, 200)   // it's just an icon
-                            .onlyScaleDown()    //resize image, if bigger than 200x200
-                            .get();
-                    File outFile = taskParams.getOutFile();
-                    //saveAsync image
-                    FileOutputStream out = new FileOutputStream(outFile);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 50, out);
-                    out.close();
-                    taskParams.getToken().setImage(Uri.fromFile(outFile));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //set image to null to prevent internet link in image, in case image
-                    //was scanned, when no connection existed
-                    taskParams.getToken().setImage(null);
-                }
-            }
-            return new ReturnParams(taskParams.getToken(), taskParams.getContext());
+    private static abstract class TokenAsyncTask extends AsyncTask<Void, Void, ReturnParams> {
+
+        private FreeOTPApplication application;
+        private File imageOutput;
+        private Token token;
+
+        public TokenAsyncTask(FreeOTPApplication application, File imageOutput, Token token){
+            this.application = application;
+            this.imageOutput = imageOutput;
+            this.token = token;
         }
 
         @Override
-        protected void onPostExecute(ReturnParams returnParams) {
-            super.onPostExecute(returnParams);
-            //we downloaded the image, now save it normally
-            this.tokenPersistence.save(returnParams.getToken());
-            //refresh TokenAdapter
-            returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
+        protected ReturnParams doInBackground(Void... voids) {
+            if(this.token.getImage() != null) {
+                this.token = Utils.copyImageToStorage(this.application,
+                        this.token,
+                        this.imageOutput);
+            }
+            return new ReturnParams(this.token, this.application);
         }
+//        @Override
+//        protected void onPostExecute(ReturnParams returnParams) {
+//            super.onPostExecute(returnParams);
+//            //we downloaded the image, now save/update it normally
+//            if (this.mode == MODE.ADD)
+//                this.tokenPersistence.add(returnParams.getToken());
+//            else if (this.mode == MODE.UPDATE)
+//                this.tokenPersistence.update(returnParams.getToken());
+//            //refresh TokenAdapter
+//            returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
+//        }
     }
 }

@@ -1,9 +1,14 @@
-package org.fedorahosted.freeotp;
+package org.fedorahosted.freeotp.common;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.util.Log;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import com.squareup.picasso.Picasso;
+
+import org.fedorahosted.freeotp.Token;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -11,11 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
@@ -68,6 +69,47 @@ public class Utils {
                     out.write(buf, 0, len);
                 }
             }
+        }
+    }
+
+    public static Token copyImageToStorage(Context context, Token token, File outFile){
+        if (token == null)
+            return null;
+        if (outFile == null || context == null){
+            token.setImage(null);
+            return token;
+        }
+
+        File tokenImage = new  File(token.getImage().getPath());
+        if (Uri.fromFile(outFile).compareTo(token.getImage()) == 0) {//- Same file, then do nothing and just return.
+            return token;
+        } else if ( //- Both files's location are on application's imageFolder. In this case move token's image to outFile.
+                tokenImage.exists() &&
+                outFile.getParentFile().getAbsolutePath().compareTo(tokenImage.getParentFile().getAbsolutePath()) == 0) {
+            if (outFile.exists())
+                outFile.delete();
+            tokenImage.renameTo(outFile);
+            token.setImage(Uri.fromFile(outFile));
+            return token;
+        } else {
+            try {
+                Bitmap bitmap = Picasso.with(context)
+                        .load(token.getImage())
+                        .resize(200, 200)   // it's just an icon
+                        .onlyScaleDown()    //resize image, if bigger than 200x200
+                        .get();
+                //saveAsync image
+                FileOutputStream out = new FileOutputStream(outFile);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 50, out);
+                out.close();
+                token.setImage(Uri.fromFile(outFile));
+            } catch (IOException e) {
+                e.printStackTrace();
+                //set image to null to prevent internet link in image, in case image
+                //was scanned, when no connection existed
+                token.setImage(null);
+            }
+            return token;
         }
     }
 

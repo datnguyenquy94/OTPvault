@@ -91,7 +91,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
     }
 
     @Override
-    protected void bindView(View view, final int position) {
+    protected void bindView(final View view, final int position) {
         final Context ctx = view.getContext();
         TokenLayout tl = (TokenLayout) view;
         Token token = getItem(position);
@@ -122,24 +122,29 @@ public class TokenAdapter extends BaseReorderableAdapter {
         tl.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TokenPersistence tp = ((FreeOTPApplication)ctx.getApplicationContext())
-                        .getTokenPersistence();;
+                try {
+                    TokenPersistence tp = ((FreeOTPApplication)ctx.getApplicationContext())
+                            .getTokenPersistence();;
 
-                // Increment the token.
-                Token token = tp.get(position);
-                TokenCode codes = token.generateCodes();
-                //save token. Image wasn't changed here, so just save it in sync
-                ((FreeOTPApplication)ctx.getApplicationContext())
-                        .getTokenPersistence().save(token);
+                    // Increment the token.
+                    Token token = tp.get(position);
+                    TokenCode codes = token.generateCodes();
+                    //save token. Image wasn't changed here, so just save it in sync
+                    ((FreeOTPApplication)ctx.getApplicationContext())
+                            .getTokenPersistence().update(position, token);
 
-                // Copy code to clipboard.
-                mClipMan.setPrimaryClip(ClipData.newPlainText(null, codes.getCurrentCode()));
-                Toast.makeText(v.getContext().getApplicationContext(),
-                        R.string.code_copied,
-                        Toast.LENGTH_SHORT).show();
+                    // Copy code to clipboard.
+                    mClipMan.setPrimaryClip(ClipData.newPlainText(null, codes.getCurrentCode()));
+                    Toast.makeText(v.getContext().getApplicationContext(),
+                            R.string.code_copied,
+                            Toast.LENGTH_SHORT).show();
 
-                mTokenCodes.put(token.getID(), codes);
-                ((TokenLayout) v).start(token.getType(), codes, true);
+                    mTokenCodes.put(token.getID(), codes);
+                    ((TokenLayout) v).start(token.getType(), codes, true);
+                } catch(Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(view.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                }
             }
         });
 

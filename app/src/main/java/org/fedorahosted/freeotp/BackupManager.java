@@ -8,6 +8,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import org.fedorahosted.freeotp.common.Constants;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 import org.fedorahosted.freeotp.views.ProgressDialogBuilder;
 
@@ -120,7 +122,7 @@ public class BackupManager {
                 if (tokenPersistence.tokenExists(importToken.getID())){//- token alread exsit on
                     continue;
                 } else {
-                    tokenPersistence.save(importToken);
+                    tokenPersistence.add(importToken);
                     File importTokenImage = new File(application.getTmpFolder(), importToken.getImageFileName());
                     if (importTokenImage.exists()){
                         File importTokenImageNewLocation = new File(application.getImageFolder(), importToken.getImageFileName());

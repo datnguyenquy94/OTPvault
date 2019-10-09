@@ -1,14 +1,16 @@
 package org.fedorahosted.freeotp.storage;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import org.fedorahosted.freeotp.Constants;
+import org.fedorahosted.freeotp.common.Constants;
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.Token;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -69,7 +71,11 @@ public class TokenStorage {
         }
     }
 
+    //- Should only be called on "public Token get(int position)" of TokenPersistence.java CCC
+    //- Only use this function if filer is turn off.
+    //- So its better to call get(position) via TokenPersisitence than this.
     public Token get(int position) {
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
         if (sharedPreferences != null) {
             String key = null;
@@ -111,17 +117,55 @@ public class TokenStorage {
         }
     }
 
-    public void save(Token newToken) {
+    public void add(Token newToken) throws Exception {
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
         if (sharedPreferences != null) {
             String key = newToken.getID();
-
-            if (!sharedPreferences.contains(key)) {//this is a new token, add it's id to lstTokens.
+            if (this.tokenExists(key))
+                throw new Exception("Token exist.");
+            else {
                 this.tokenIndex.add(0, key);
                 this.updateTokenIndex(this.tokenIndex);
+                sharedPreferences.edit().putString(key, gson.toJson(newToken)).apply();
             }
-            sharedPreferences.edit().putString(key, gson.toJson(newToken)).apply();
         }
+    }
+
+    //- Only allow user to update token's isser, label, image and counter.
+    public Token update(Token token, String newIssuer, String newLabel, Uri newImage, long newCounter) throws Exception {
+        SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
+        if (sharedPreferences != null) {
+            token = this.get(token.getID());
+            if (token == null)
+                throw new Exception("Token isn't exist.");
+            else {
+
+                token.setCounter(newCounter);
+                if (token.getImage() == null || (token.getImage().compareTo(newImage) != 0) )
+                    token.setImage(newImage);
+
+                if (token.getIssuer().compareTo(newIssuer) != 0 ||
+                    token.getLabel().compareTo(newLabel) != 0 ) {//- issuer or label changed, need to update token index key.
+//                    if (token.getImage() != null){//- The image name is tied to tokenId. So if tokenId changed. The image need to be change too.
+//                        File image = new File(token.getImage().getPath());
+//                        if (image.exists()){
+//                            image.renameTo(image.getParentFile(), token.getID());
+//                        }
+//                    }
+
+                    int position = this.tokenIndex.indexOf(token.getID());//- get position of token's id in tokenIndex before update.
+                    sharedPreferences.edit().remove(token.getID()).apply();//- if id is be changed, so token need to be removed and re-add with new Id.
+                    //- update issuer and label, after that token id will be changed.
+                    token.setIssuer(newIssuer);
+                    token.setLabel(newLabel);
+                    this.tokenIndex.set(position, token.getID());//- change token's id in tokenIndex.
+                    this.updateTokenIndex(this.tokenIndex);
+                }
+
+                sharedPreferences.edit().putString(token.getID(), gson.toJson(token)).apply();
+            }
+        }
+        return token;
     }
 
     public void move(int fromPosition, int toPosition) {
@@ -151,6 +195,8 @@ public class TokenStorage {
     public void delete(String key){
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
         if (sharedPreferences != null) {
+            Token token = this.get(key);
+            token.deleteImage();
             this.tokenIndex.remove(key);
             this.updateTokenIndex(this.tokenIndex);
             sharedPreferences.edit().remove(key).apply();

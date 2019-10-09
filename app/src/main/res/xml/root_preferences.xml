@@ -41,14 +41,14 @@
     <PreferenceCategory app:title="@string/backup_header">
 
         <Preference
-            app:key="restoreNow"
-            app:title="Restore"
-            app:summary="Import a backup now."/>
+            app:key="importNow"
+            app:title="Import"
+            app:summary="Import tokens from backup."/>
 
         <Preference
             app:key="backupNow"
             app:title="Backup"
-            app:summary="Create a backup now."/>
+            app:summary="Backup all tokens."/>
 
         <SwitchPreferenceCompat
             app:key="backupFileWithTimeStamp"
@@ -87,8 +87,8 @@
         <SeekBarPreference
             app:dependency="enableLockTimeout"
             app:key="lockTimeOut"
-            app:defaultValue="30"
-            app:min="10"
+            app:defaultValue="60"
+            app:min="30"
             app:max="240"
             app:title="Lock time out"/>
 
