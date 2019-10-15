@@ -7,12 +7,14 @@ import android.util.Log;
 
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.activities.LoginActivity;
+import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
-public class IdleTimeChecker extends AsyncTask<FreeOTPApplication, Void, Void> {
+public class IdleWatcher extends AsyncTask<FreeOTPApplication, Void, Void> {
     private FreeOTPApplication application;
 
     @Override
@@ -26,9 +28,14 @@ public class IdleTimeChecker extends AsyncTask<FreeOTPApplication, Void, Void> {
                 while(!this.isCancelled()){
                     lockTimeOut = PreferenceManager
                             .getDefaultSharedPreferences(application).getInt("lockTimeOut", 30);
-                    if ( !this.application.isLogged() )
+                    if ( !this.application.isLogged() ) {
                         this.cancel(true);
-                    else if ( this.application.getLastTimeInteraction() > 0 &&
+                    } else if ( this.application.getCurrentActivityClassName().compareTo(SettingsActivity.class.getName()) == 0 ){
+                      //- Not apply IdleWatcher to SettingsActivity.
+                      //- Because IdleWatcher cant record lastTimeInteraction on SettingsActivity's folder and backup fileChooser
+                      //- Temporary disable IdleWatcher by update lastTimeInteraction to current time.
+                      application.updateLastTimeInteraction();
+                    } else if ( this.application.getLastTimeInteraction() > 0 &&
                         (System.currentTimeMillis() - application.getLastTimeInteraction())
                                 > lockTimeOut*1000 ){
                         break;
@@ -45,15 +52,11 @@ public class IdleTimeChecker extends AsyncTask<FreeOTPApplication, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        //- Not run it if its stop by cancel request or enableLockTimeout is false.
-        if (!isCancelled() &&
-            this.application.getSettingsPreference().getBoolean("enableLockTimeout", false)){
-            this.application.logout();
-            if (this.application.isAppOnForeground()){
-                Intent intent = new Intent(this.application, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                this.application.startActivity(intent);
-            }
+        //- Not run it if its stop by cancel request.
+        if (!isCancelled()){
+            this.application.onIdleTimeout();
         }
     }
+
+
 }

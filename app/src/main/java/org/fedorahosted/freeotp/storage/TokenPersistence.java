@@ -69,6 +69,10 @@ public class TokenPersistence {
             return this.tokenStorage.get(position);
     }
 
+    public Token get(String key){
+        return this.tokenStorage.get(key);
+    }
+
     public void add(Token newToken) throws Exception {
         try {
             if (this.tokenStorage.tokenExists(newToken.getID()))
@@ -89,11 +93,9 @@ public class TokenPersistence {
             if (editedToken.getIssuer() == null || editedToken.getLabel() == null)
                 throw new Exception("Issuer or Label not found.");
 
-            editedToken = this.tokenStorage.update(oldToken,
-                    editedToken.getIssuer(),
-                    editedToken.getLabel(),
-                    editedToken.getImage(),
-                    editedToken.getCounter());
+            editedToken = this.tokenStorage.update(oldToken.getID(), editedToken);
+            if (editedToken == null)
+                throw new Exception("Update token failed.");
 
             if (oldToken.getIssuer().compareTo(editedToken.getIssuer()) != 0) {//- update issuer token index.
                 //- remove token key on old issuerTokenIndex.
@@ -104,7 +106,7 @@ public class TokenPersistence {
             return editedToken;
         } catch(NullPointerException npE){
             npE.printStackTrace();
-            throw new Exception("Internal error...");
+            throw new Exception("Internal error.");
         }
     }
 
@@ -223,33 +225,6 @@ public class TokenPersistence {
     }
 
     /**
-     * Data class for SaveTokenTask
-     */
-//    private static class TaskParams {
-//        private final File outFile;
-//        private final Context mContext;
-//        private final Token token;
-//
-//        public TaskParams(Token token, File outFile, Context mContext) {
-//            this.token = token;
-//            this.outFile = outFile;
-//            this.mContext = mContext;
-//        }
-//
-//        public Context getContext() {
-//            return mContext;
-//        }
-//
-//        public Token getToken() {
-//            return token;
-//        }
-//
-//        public File getOutFile() {
-//            return outFile;
-//        }
-//    }
-
-    /**
      * Downloads/copies images to FreeOTP storage
      * Saves token in PostExecute
      */
@@ -274,16 +249,5 @@ public class TokenPersistence {
             }
             return new ReturnParams(this.token, this.application);
         }
-//        @Override
-//        protected void onPostExecute(ReturnParams returnParams) {
-//            super.onPostExecute(returnParams);
-//            //we downloaded the image, now save/update it normally
-//            if (this.mode == MODE.ADD)
-//                this.tokenPersistence.add(returnParams.getToken());
-//            else if (this.mode == MODE.UPDATE)
-//                this.tokenPersistence.update(returnParams.getToken());
-//            //refresh TokenAdapter
-//            returnParams.context.sendBroadcast(new Intent(MainActivity.ACTION_IMAGE_SAVED));
-//        }
     }
 }

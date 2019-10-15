@@ -2,12 +2,15 @@ package org.fedorahosted.freeotp;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.telecom.Call;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
+import org.fedorahosted.freeotp.common.Callback;
 import org.fedorahosted.freeotp.common.Constants;
 import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
@@ -19,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,69 +90,94 @@ public class BackupManager {
         }
     }
 
-    private static boolean importBackup(FreeOTPApplication application, String zipFileInput, String backupPasswd){
+    private static void importBackup(FreeOTPApplication application, File zipInputFile, String backupPasswd) throws Exception {
         try {
+            //- Clean work folders before import.====================
             BackupManager.createFallbackBackup(application);
             Utils.clearFolder(application.getTmpFolder(), 0);
+            File sharedPreferenceTemporaryFile = application.getSharedPreferenceTemporaryFile();
+            if (sharedPreferenceTemporaryFile.exists())
+                sharedPreferenceTemporaryFile.delete();
+            //- =====================================================
 
-            boolean unzipResult = BackupManager.unzip(zipFileInput, application.getTmpFolder());
+            boolean unzipResult = BackupManager.unzip(zipInputFile, application.getTmpFolder());
             if (!unzipResult)
-                throw new Exception("Unable to unzip backup.");
-
-            File sharedPreferenceStoreImportFile = application.getSharedPreferenceStoreImportFile();
-            if (sharedPreferenceStoreImportFile.exists())
-                sharedPreferenceStoreImportFile.delete();
-
+                throw new Exception("Unable to open backup.");
 
 
             //- Get backup SharePreference from zip backup.
-            File sharedPreferenceStoreImportFileInput = new File(application.getTmpFolder(),
+            File sharedPreferenceStoreBackupInputFile = new File(application.getTmpFolder(),
                     Constants.SharedPreferenceStoreFile+".xml");
-            Utils.copy(sharedPreferenceStoreImportFileInput, sharedPreferenceStoreImportFile);//- copy backupSharedPreferences to shared_prefs to read it.
+            if (!sharedPreferenceStoreBackupInputFile.exists())
+                throw new Exception("Backup data not found.");
+            Utils.copy(sharedPreferenceStoreBackupInputFile, sharedPreferenceTemporaryFile);//- copy backupSharedPreferences to shared_prefs to read it.
 
             TokenPersistence tokenPersistence = application.getTokenPersistence();
             List<String> tokenIndex=null;
-            Token importToken;//- From backup files
-            Token token;//- From app.
+            Token newToken;//- From backup files
             String str;//- tmp string.
-            SharedPreferences backupSharedPreferences = application.loginImportFile(backupPasswd);
+            SharedPreferences backupSharedPreferences = application.openBackupTemporaryFile(backupPasswd);
             str = backupSharedPreferences.getString(Constants.LST_TOKENS, "");
-            if (!str.isEmpty())
+            if (str != null && !str.isEmpty())
                 tokenIndex = new ArrayList<>(Arrays.asList(str.split(",")));
+            else
+                tokenIndex = new ArrayList<>();
 
-            for (String id: tokenIndex){
-                str = backupSharedPreferences.getString(id, null);
-                importToken = application.getGson().fromJson(str, Token.class);
-                if (tokenPersistence.tokenExists(importToken.getID())){//- token alread exsit on
-                    continue;
-                } else {
-                    tokenPersistence.add(importToken);
-                    File importTokenImage = new File(application.getTmpFolder(), importToken.getImageFileName());
-                    if (importTokenImage.exists()){
-                        File importTokenImageNewLocation = new File(application.getImageFolder(), importToken.getImageFileName());
-                        Utils.copy(importTokenImage, importTokenImageNewLocation);
+            for (String newTokenId: tokenIndex){
+                boolean isNewTokenExisted = false;
+                str = backupSharedPreferences.getString(newTokenId, null);
+                newToken = application.getGson().fromJson(str, Token.class);
+                File newTokenImage = new File(application.getTmpFolder(), newToken.getImageFileName());
+
+                //- Loop till it findout a new tokenId for newToken.
+                //- Or a token with same data as newToken in app's data then it skip(import) this newToken.
+                while(tokenPersistence.tokenExists(newToken.getID())){
+                    Token token = tokenPersistence.get(newToken.getID());
+                    if (token == null){
+                        throw new Exception("Import failed. Token id=["+newToken.getID()+"] should be exsit.");
+                    } else if (token.equals(newToken)){//- This token already exsit in app's data.
+                        isNewTokenExisted = true;
+                        break;
+                    } else {
+                        isNewTokenExisted = false;
+                        newToken.setLabel(newToken.getLabel()+Constants.CONFLICT_PREFIX);
                     }
+                }
+
+                if (isNewTokenExisted == false){//- The newToken isn't exist in app's data. So import it.
+                    if (newToken.getImage() != null && newTokenImage.exists()){
+                        File newTokenImageDestination = new File(application.getImageFolder(),
+                                newToken.getImageFileName());
+                        Utils.copy(newTokenImage, newTokenImageDestination);
+                        newToken.setImage(Uri.fromFile(newTokenImageDestination));
+                    }
+                    tokenPersistence.add(newToken);
                 }
             }
 
-
-
-            if (sharedPreferenceStoreImportFile.exists())
-                sharedPreferenceStoreImportFile.delete();
+            //- Clean work folders and data after import.================
+            if (sharedPreferenceTemporaryFile.exists())
+                sharedPreferenceTemporaryFile.delete();
             Utils.clearFolder(application.getTmpFolder(), 0);
             BackupManager.clearFallbackBackup(application);
-            return true;
+            //- =========================================================
         } catch(Exception e){
             e.printStackTrace();
+            String message = e.getMessage();
             try {
+                Log.d(LOG_TAG, "Import backup failed, trying to restore data to the last state...");
                 BackupManager.restoreFallbackBackup(application);
-            } catch(Exception ee){ ee.printStackTrace();Log.d(LOG_TAG, "Unable to restore fallback's backup."); }
-            return false;
+            } catch(Exception ee){
+                Log.d(LOG_TAG, "Restore data failed.");
+                ee.printStackTrace();
+                message = " " + ee.getMessage();
+            }
+            throw new Exception(message);
         }
     }
 
     //- In case backup fail. Use this to restore app to last state.
-    private static boolean createFallbackBackup(FreeOTPApplication application) throws IOException {
+    private static void createFallbackBackup(FreeOTPApplication application) throws IOException {
         Utils.clearFolder(application.getBackupFolder(), 0);
         File src;
         File dst;
@@ -163,10 +192,9 @@ public class BackupManager {
             dst = new File(application.getBackupFolder(), src.getName());
             Utils.copy(src, dst);
         }
-        return true;
     }
 
-    private static boolean restoreFallbackBackup(FreeOTPApplication application) throws IOException {
+    private static void restoreFallbackBackup(FreeOTPApplication application) throws IOException {
         Utils.clearFolder(application.getImageFolder(), 0);
         File src;
         File dst;
@@ -185,15 +213,13 @@ public class BackupManager {
         }
 
         Utils.clearFolder(application.getBackupFolder(), 0);
-        return true;
     }
 
-    private static boolean clearFallbackBackup(FreeOTPApplication application){
+    private static void clearFallbackBackup(FreeOTPApplication application){
         Utils.clearFolder(application.getBackupFolder(), 0);
-        return true;
     }
 
-    private static boolean unzip(String zipFileInput, File outputFolder){
+    private static boolean unzip(File zipFileInput, File outputFolder){
         int size;
         int BUFFER_SIZE = 1024;
         byte[] buffer = new byte[BUFFER_SIZE];
@@ -206,8 +232,7 @@ public class BackupManager {
             try {
                 ZipEntry ze = null;
                 while ((ze = zin.getNextEntry()) != null) {
-                    String path = outputFolder.getAbsolutePath() + ze.getName();
-                    File unzipFile = new File(path);
+                    File unzipFile = new File(outputFolder, ze.getName());
 
                     if (!ze.isDirectory()) {
                         // unzip the file
@@ -235,46 +260,107 @@ public class BackupManager {
         }
     }
 
-    public static void backupAsync(Activity activity){
-        BackupAsyncTask backupAsyncTask = new BackupAsyncTask(activity);
+    public static void backupAsync(Activity activity, Callback callback){
+        BackupAsyncTask backupAsyncTask = new BackupAsyncTask(activity, callback);
         backupAsyncTask.execute();
+    }
+
+    public static void importAsync(Activity activity, File zipInputFile, String password, Callback callback){
+        ImportAsyncTask importAsyncTask = new ImportAsyncTask(activity, zipInputFile, password, callback);
+        importAsyncTask.execute();
     }
 
     public static class BackupAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
-        private Activity activity;
+        private WeakReference<Activity> activityRef;
+        private Callback callback;
         private AlertDialog dialog;
 
-        public BackupAsyncTask(Activity activity){
-            this.activity = activity;
+        public BackupAsyncTask(Activity activity, Callback callback){
+            this.activityRef = new WeakReference<>(activity);
+            this.callback = callback;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            this.dialog = ProgressDialogBuilder.build(activity, "Backup...");
+            this.dialog = ProgressDialogBuilder.build(this.activityRef.get(), "Backup...");
             this.dialog.show();
         }
 
         @Override
         protected Boolean doInBackground(Void... voids) {
-            return BackupManager.backup((FreeOTPApplication) this.activity.getApplication());
+            //- Wait 1s before backup.
+            try {
+                Thread.sleep(1000);
+                return BackupManager.backup((FreeOTPApplication) this.activityRef.get().getApplication());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             super.onPostExecute(result);
-            String resultMessage;
+            this.dialog.dismiss();
 
             if (!result)
-                resultMessage = "Backup is failed.";
+                callback.error("Backup failed.");
             else
-                resultMessage = "Backup is successed.";
+                callback.success(null);
+        }
+    }
 
-            Toast.makeText(this.activity,
-                    resultMessage, Toast.LENGTH_LONG).show();
+    public static class ImportAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
+        private WeakReference<Activity> activityRef;
+        private Callback callback;
+        private File zipInputFile;
+        private String password;
+        private AlertDialog dialog;
+
+        private String exceptMessage = "";
+
+        public ImportAsyncTask(Activity activity, File zipInputFile, String password, Callback callback){
+            this.activityRef = new WeakReference<>(activity);
+            this.zipInputFile = zipInputFile;
+            this.password = password;
+            this.callback = callback;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            this.dialog = ProgressDialogBuilder.build(this.activityRef.get(), "Importing...");
+            this.dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            //- Wait 1s before backup.
+            try {
+                Thread.sleep(1000);
+                BackupManager.importBackup((FreeOTPApplication) this.activityRef.get().getApplication(),
+                        this.zipInputFile, this.password);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                this.exceptMessage = e.getMessage();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
             this.dialog.dismiss();
+
+            if (!result)
+                this.callback.error(this.exceptMessage);
+            else
+                this.callback.success(null);
+
         }
     }
 

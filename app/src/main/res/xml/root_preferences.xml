@@ -43,7 +43,7 @@
         <Preference
             app:key="importNow"
             app:title="Import"
-            app:summary="Import tokens from backup."/>
+            app:summary="Import tokens from a backup."/>
 
         <Preference
             app:key="backupNow"

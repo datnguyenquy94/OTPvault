@@ -1,5 +1,6 @@
 package org.fedorahosted.freeotp.storage;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
@@ -11,11 +12,13 @@ import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.Token;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+@SuppressLint("ApplySharedPref")
 public class TokenStorage {
     private FreeOTPApplication application;
     private Gson gson;
@@ -132,20 +135,29 @@ public class TokenStorage {
     }
 
     //- Only allow user to update token's isser, label, image and counter.
-    public Token update(Token token, String newIssuer, String newLabel, Uri newImage, long newCounter) throws Exception {
+    public Token update(String tokenId, Token editedToken) throws Exception {
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
+        Token currentToken = null;
         if (sharedPreferences != null) {
-            token = this.get(token.getID());
-            if (token == null)
+            currentToken = this.get(tokenId);
+            if (currentToken == null)
                 throw new Exception("Token isn't exist.");
             else {
+                String newIssuer    = editedToken.getIssuer();
+                String newLabel     = editedToken.getLabel();
+                Uri newImage        = editedToken.getImage();
+                long newCounter     = editedToken.getCounter();
 
-                token.setCounter(newCounter);
-                if (token.getImage() == null || (token.getImage().compareTo(newImage) != 0) )
-                    token.setImage(newImage);
+                currentToken.setCounter(newCounter);
+                if (currentToken.getImage() == null || (currentToken.getImage().compareTo(newImage) != 0) ){
+                    if (currentToken.getImage() != null)
+                        this.deleteTokenImage(currentToken);
+                    currentToken.setImage(newImage);
+                }
 
-                if (token.getIssuer().compareTo(newIssuer) != 0 ||
-                    token.getLabel().compareTo(newLabel) != 0 ) {//- issuer or label changed, need to update token index key.
+
+                if (currentToken.getIssuer().compareTo(newIssuer) != 0 ||
+                        currentToken.getLabel().compareTo(newLabel) != 0 ) {//- issuer or label changed, need to update token index key.
 //                    if (token.getImage() != null){//- The image name is tied to tokenId. So if tokenId changed. The image need to be change too.
 //                        File image = new File(token.getImage().getPath());
 //                        if (image.exists()){
@@ -153,19 +165,19 @@ public class TokenStorage {
 //                        }
 //                    }
 
-                    int position = this.tokenIndex.indexOf(token.getID());//- get position of token's id in tokenIndex before update.
-                    sharedPreferences.edit().remove(token.getID()).apply();//- if id is be changed, so token need to be removed and re-add with new Id.
+                    int position = this.tokenIndex.indexOf(currentToken.getID());//- get position of token's id in tokenIndex before update.
+                    sharedPreferences.edit().remove(currentToken.getID()).commit();//- if id is be changed, so token need to be removed and re-add with new Id.
                     //- update issuer and label, after that token id will be changed.
-                    token.setIssuer(newIssuer);
-                    token.setLabel(newLabel);
-                    this.tokenIndex.set(position, token.getID());//- change token's id in tokenIndex.
+                    currentToken.setIssuer(newIssuer);
+                    currentToken.setLabel(newLabel);
+                    this.tokenIndex.set(position, currentToken.getID());//- change token's id in tokenIndex.
                     this.updateTokenIndex(this.tokenIndex);
                 }
 
-                sharedPreferences.edit().putString(token.getID(), gson.toJson(token)).apply();
+                sharedPreferences.edit().putString(currentToken.getID(), gson.toJson(currentToken)).apply();
             }
         }
-        return token;
+        return currentToken;
     }
 
     public void move(int fromPosition, int toPosition) {
@@ -196,10 +208,30 @@ public class TokenStorage {
         SharedPreferences sharedPreferences = this.application.getSharedPreferencesStorage();
         if (sharedPreferences != null) {
             Token token = this.get(key);
-            token.deleteImage();
+            this.deleteTokenImage(token);
             this.tokenIndex.remove(key);
             this.updateTokenIndex(this.tokenIndex);
             sharedPreferences.edit().remove(key).apply();
         }
+    }
+
+
+
+    /**
+     * delete image, which is attached to the token from storage
+     */
+    public void deleteTokenImage(Token token) {
+        Uri imageUri = token.getImage();
+        if (imageUri != null) {
+
+            File image = new File(imageUri.getPath());
+            File imageFolder = this.application.getImageFolder();
+            //- Only delete if image belong to application's imageFolder.
+            if (image.exists() &&
+                image.getAbsolutePath().indexOf(imageFolder.getAbsolutePath()) == 0){
+                image.delete();
+            }
+        }
+        token.setImage(null);
     }
 }

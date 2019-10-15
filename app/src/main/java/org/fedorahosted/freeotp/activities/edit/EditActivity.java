@@ -40,6 +40,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 public class EditActivity extends AbstractActivity implements TextWatcher, View.OnClickListener {
@@ -68,6 +69,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
         onTextChanged(null, 0, 0, 0);
         Picasso.with(this)
                 .load(uri)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .placeholder(R.mipmap.ic_freeotp_logo_foreground)
                 .into(mImage);
     }
@@ -188,7 +190,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                         token,
                         new Callback() {
                             @Override
-                            public void success(Token token) { EditActivity.this.finish(); }
+                            public void success(Object obj) { EditActivity.this.finish(); }
                             @Override
                             public void error(String errorMessage) {
                                 Toast.makeText(application, errorMessage, Toast.LENGTH_LONG).show();

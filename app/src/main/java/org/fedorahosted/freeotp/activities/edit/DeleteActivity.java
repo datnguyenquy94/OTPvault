@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 public class DeleteActivity extends AbstractActivity {
@@ -33,6 +34,7 @@ public class DeleteActivity extends AbstractActivity {
         ((TextView) findViewById(R.id.label)).setText(token.getLabel());
         Picasso.with(this)
                 .load(token.getImage())
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .placeholder(R.mipmap.ic_freeotp_logo_foreground)
                 .into((ImageView) findViewById(R.id.image));
 
@@ -45,8 +47,6 @@ public class DeleteActivity extends AbstractActivity {
 
         findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //delete the image that was copied to storage, before deleting the token
-                token.deleteImage();
                 ((FreeOTPApplication)DeleteActivity.this.getApplicationContext())
                         .getTokenPersistence().delete(getPosition());
                 finish();

@@ -54,7 +54,7 @@ import android.widget.Toast;
 
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
+import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
 import org.fedorahosted.freeotp.adapters.TokenAdapter;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractAppCompatActivity;
 import org.fedorahosted.freeotp.broadcast.ScreenListener;

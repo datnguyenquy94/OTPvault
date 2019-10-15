@@ -24,6 +24,7 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Locale;
 
 import javax.crypto.Mac;
@@ -33,6 +34,8 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
+
+import androidx.annotation.Nullable;
 
 import com.google.android.apps.authenticator.Base32String;
 import com.google.android.apps.authenticator.Base32String.DecodingException;
@@ -310,33 +313,29 @@ public class Token {
     /**
      * delete image, which is attached to the token from storage
      */
-    public void deleteImage() {
-        Uri imageUri = getImage();
-        if (imageUri != null) {
-
-            File image = new File(imageUri.getPath());
-            File applicationFolder  = image.getParentFile().getParentFile().getParentFile();
-            //- Only delete if image belong to application's folder.
-            if (image.exists() &&
-                image.getParentFile() != null &&
-                image.getParentFile().getParentFile() !=null &&
-                image.getParentFile().getParentFile().getParentFile() != null &&
-                applicationFolder.exists() &&
-                applicationFolder.getName().compareTo(BuildConfig.APPLICATION_ID) == 0){
-                image.delete();
-            }
-        }
-    }
+//    public void deleteImage() {
+//        Uri imageUri = getImage();
+//        if (imageUri != null) {
+//
+//            File image = new File(imageUri.getPath());
+//            File applicationFolder  = image.getParentFile().getParentFile().getParentFile();
+//            //- Only delete if image belong to application's folder.
+//            if (image.exists() &&
+//                image.getParentFile() != null &&
+//                image.getParentFile().getParentFile() !=null &&
+//                image.getParentFile().getParentFile().getParentFile() != null &&
+//                applicationFolder.exists() &&
+//                applicationFolder.getName().compareTo(BuildConfig.APPLICATION_ID) == 0){
+//                image.delete();
+//            }
+//        }
+//    }
 
     public void setImage(Uri image) {
-        //delete old token image, before assigning the new one
-        deleteImage();
-
         if (image == null)
             this.image = null;
         else
             this.image = image.toString();
-        return;
     }
 
     public Uri getImage() {
@@ -359,5 +358,33 @@ public class Token {
     //- But if it is, then this is the name of it.
     public String getImageFileName(){
         return this.getID() + ".png";
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof Token))
+            return false;
+
+        //- Not compare image with image, because its only for visual.
+        //- Same token can have two different image on both backup and app's data.
+        Token token = (Token) obj;
+        if (this.issuer.compareTo(token.issuer) != 0)
+            return false;
+        else if (this.label.compareTo(token.label) != 0)
+            return false;
+        else if (this.algo.compareTo(token.algo) != 0)
+            return false;
+        else if (this.digits != token.digits)
+            return false;
+        else if (this.period != token.period)
+            return false;
+        else if (!Arrays.equals(this.secret, token.secret))
+            return false;
+        else if (this.type != token.type)
+            return false;
+        else if (this.type == TokenType.HOTP && this.counter != token.counter )
+            return false;
+        else
+            return true;
     }
 }

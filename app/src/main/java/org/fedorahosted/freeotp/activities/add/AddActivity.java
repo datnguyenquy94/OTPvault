@@ -15,6 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.fedorahosted.freeotp.R;
@@ -53,6 +54,7 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
         onTextChanged(null, 0, 0, 0);
         Picasso.with(this)
                 .load(uri)
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .placeholder(R.mipmap.ic_freeotp_logo_foreground)
                 .into(mImage);
     }
@@ -110,7 +112,7 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
                             token,
                             new Callback() {
                                 @Override
-                                public void success(Token token) { AddActivity.this.finish(); }
+                                public void success(Object obj) { AddActivity.this.finish(); }
                                 @Override
                                 public void error(String errorMessage) {
                                     Toast.makeText(application, errorMessage, Toast.LENGTH_LONG).show();
@@ -190,11 +192,11 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
         mIssuer.setSelection(mIssuer.getText().length());
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        this.finishAndRemoveTask();
-    }
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        this.finishAndRemoveTask();
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

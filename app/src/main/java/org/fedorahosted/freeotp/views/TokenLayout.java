@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.fedorahosted.freeotp.R;
@@ -106,6 +107,7 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
         // Show the image.
         Picasso.with(getContext())
                 .load(token.getImage())
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
                 .placeholder(R.mipmap.ic_freeotp_logo_foreground)
                 .fit()
                 .into(mImage);

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.fedorahosted.freeotp.Token;
@@ -95,6 +96,7 @@ public class Utils {
             try {
                 Bitmap bitmap = Picasso.with(context)
                         .load(token.getImage())
+                        .memoryPolicy(MemoryPolicy.NO_CACHE)
                         .resize(200, 200)   // it's just an icon
                         .onlyScaleDown()    //resize image, if bigger than 200x200
                         .get();

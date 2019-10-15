@@ -5,15 +5,16 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'io.fotoapparat.fotoapparat:library:1.4.1'
-    implementation 'lib.kashif:folderpicker:2.4'
+    implementation 'com.github.hedzr:android-file-chooser:v1.2.0-final'
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "androidx.preference:preference:1.1.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.legacy:legacy-preference-v14:1.0.0"
-    implementation "androidx.security:security-crypto:1.0.0-alpha02"
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
     implementation 'com.google.android.material:material:1.0.0'
+    //    implementation "androidx.security:security-crypto:1.0.0-alpha02"
+    implementation 'com.google.crypto.tink:tink-android:1.2.2'
 
 
     testImplementation 'junit:junit:4.12'
@@ -30,6 +31,7 @@ allprojects {
 }
 
 android {
+
     lintOptions {
         abortOnError false
     }
@@ -45,4 +47,10 @@ android {
 
     compileSdkVersion 28       // NOTE: update build-tools-* in .travis.yml
     buildToolsVersion '28.0.2' // NOTE: update build-tools-* in .travis.yml
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+   - FreeOTP
+   -
+   - Authors: Nathaniel McCallum <npmccallum@redhat.com>
+   -
+   - Copyright (C) 2013  Nathaniel McCallum, Red Hat
+   -
+   - Licensed under the Apache License, Version 2.0 (the "License");
+   - you may not use this file except in compliance with the License.
+   - You may obtain a copy of the License at
+   -
+   -     http://www.apache.org/licenses/LICENSE-2.0
+   -
+   - Unless required by applicable law or agreed to in writing, software
+   - distributed under the License is distributed on an "AS IS" BASIS,
+   - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   - See the License for the specific language governing permissions and
+   - limitations under the License.
+   -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="5sp"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="File: "/>
+
+                    <TextView
+                        android:id="@+id/filePathTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:layout_weight="1"
+                        android:text="2019-10-10 15:11:14.516 23355-23355/org.fedorahosted.freeotp D/org.fedorahosted.freeotp.activities.settings.SettingsActivity:/document/primary:backup_otp.zip"/>
+
+                </TableRow>
+                <TableRow>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="Password: "/>
+
+                    <EditText
+                        android:id="@+id/passwordText"
+                        android:layout_width="match_parent"
+                        android:hint="File's password"
+                        android:textAlignment="center"
+                        android:inputType="textPassword"
+                        android:focusedByDefault="true"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse" />
+                </TableRow>
+            </TableLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <View style="@style/Divider" />
+
+    <LinearLayout style="@style/Dialog.Button.Layout">
+        <Button
+            android:id="@+id/cancel"
+            style="@style/Dialog.Button"
+            android:text="@android:string/cancel" />
+
+        <Button
+            android:id="@+id/importButton"
+            style="@style/Dialog.Button"
+            android:enabled="false"
+            android:text="@string/import_text" />
+    </LinearLayout>
+</LinearLayout>

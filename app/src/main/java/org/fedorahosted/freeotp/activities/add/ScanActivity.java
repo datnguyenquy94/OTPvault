@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import io.fotoapparat.Fotoapparat;
 import io.fotoapparat.parameter.ScaleType;
@@ -91,7 +92,8 @@ public class ScanActivity extends AbstractActivity {
         TokenPersistence.addAsync(this.application, token,
                 new org.fedorahosted.freeotp.common.Callback() {
                     @Override
-                    public void success(Token resultToken) {
+                    public void success(Object obj) {
+                        Token resultToken = (Token) obj;
                         if (resultToken == null || resultToken.getImage() == null) {
                             finish();
                             return;
@@ -100,6 +102,7 @@ public class ScanActivity extends AbstractActivity {
                         final ImageView image = ScanActivity.this.findViewById(R.id.image);
                         Picasso.with(ScanActivity.this)
                                 .load(resultToken.getImage())
+                                .memoryPolicy(MemoryPolicy.NO_CACHE)
                                 .placeholder(R.drawable.scan)
                                 .into(image, new Callback() {
                                     @Override

@@ -3,7 +3,7 @@ package org.fedorahosted.freeotp.common;
 public class Constants {
 
     public static String SharedPreferenceStoreFile = "SharedPreferenceStoreFile";
-    public static String SharedPreferenceStoreImportFile = "SharedPreferenceStoreImportFile";
+    public static String SharedPreferenceTemporary = "SharedPreferenceTemporary";//- Use this to read backup's SharedPreferenceStoreFile, Before import it.
 
     /*
     ###### tokens.xml FORMAT
@@ -48,4 +48,7 @@ public class Constants {
     public static final String IMAGE_FOLDER = "images";
     public static final String BACKUP_FOLDER = "backups";
     public static final String TMP_FOLDER = "tmp";
+
+    //- A prefix be added to importToken's label. If its conflict with another tokens already exist on app's data.
+    public static final String CONFLICT_PREFIX = ".conflict";
 }

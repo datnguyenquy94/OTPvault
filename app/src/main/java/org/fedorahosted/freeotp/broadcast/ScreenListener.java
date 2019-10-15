@@ -14,10 +14,10 @@ public class ScreenListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
             Log.d(LOG_TAG, "ACTION_SCREEN_OFF");
-            if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean("lockOnScreenOff", false))
-                ((FreeOTPApplication)context.getApplicationContext()).logout();
+            application.onScreenTurnedOff();
         } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
             Log.d(LOG_TAG, "ACTION_SCREEN_ON");
         }

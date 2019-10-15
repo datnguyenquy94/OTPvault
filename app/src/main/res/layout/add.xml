@@ -50,7 +50,7 @@
                 android:hint="jdoe@example.com"
                 android:inputType="textNoSuggestions"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                android:digits="0123456789abcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
+                android:digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
 
             <EditText
                 android:id="@+id/label"
@@ -62,7 +62,7 @@
                 android:hint="label"
                 android:inputType="textNoSuggestions"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                android:digits="0123456789abcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
+                android:digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
         </RelativeLayout>
 
         <RelativeLayout
