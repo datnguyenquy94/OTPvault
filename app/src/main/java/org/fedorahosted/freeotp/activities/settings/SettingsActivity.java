@@ -17,10 +17,13 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import org.fedorahosted.freeotp.BackupManager;
 import org.fedorahosted.freeotp.R;
+import org.fedorahosted.freeotp.activities.ChangePasswordActivity;
 import org.fedorahosted.freeotp.activities.ImportActivity;
 import org.fedorahosted.freeotp.activities.LoginActivity;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractAppCompatActivity;
 import org.fedorahosted.freeotp.common.Callback;
+import org.fedorahosted.freeotp.common.Constants;
+import org.fedorahosted.freeotp.common.Utils;
 
 import java.io.File;
 
@@ -36,6 +39,7 @@ public class SettingsActivity extends AbstractAppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, false);
         try {
             setContentView(R.layout.settings_activity);
             this.settingsFragment = new SettingsFragment(this);
@@ -106,6 +110,11 @@ public class SettingsActivity extends AbstractAppCompatActivity {
 //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 //        intent.setType("application/zip");
 //        startActivityForResult(intent, SettingsActivity.SELECT_IMPORT_FILE_REQUEST_CODE);
+        return true;
+    }
+
+    public boolean requestToChangeAppPassword(){
+        ChangePasswordActivity.openThis(this);
         return true;
     }
 

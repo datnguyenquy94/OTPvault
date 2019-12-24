@@ -58,6 +58,7 @@ import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
 import org.fedorahosted.freeotp.adapters.TokenAdapter;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractAppCompatActivity;
 import org.fedorahosted.freeotp.broadcast.ScreenListener;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 import org.fedorahosted.freeotp.activities.add.AddActivity;
 import org.fedorahosted.freeotp.activities.add.ScanActivity;
@@ -98,6 +99,9 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
     private List<RadioButton> radioButtons = new ArrayList<>();
     private ScreenListener screenListener;
 
+    private int textColor;
+    private int lineColor;
+
     private class RefreshListBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -108,8 +112,13 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, false);
         onNewIntent(getIntent());
         setContentView(R.layout.main);
+
+        this.textColor = Utils.getThemeColor(this, R.attr.colorSchemePrimary);
+        this.lineColor = Utils.getThemeColor(this, R.attr.colorSchemeTertiary);
+
         this.application.startIdleChecker();
         this.tokenPersistence = ((FreeOTPApplication)this.getApplication()).getTokenPersistence();
 
@@ -291,6 +300,7 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
                 allRadioButton.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
                 allRadioButton.setOnClickListener(this);
                 allRadioButton.setChecked(true);
+                allRadioButton.setTextColor(textColor);
             }
             if (line == null){
                 line = new View(this);
@@ -298,7 +308,7 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
                 params.height = (int) (1 * this.getResources().getDisplayMetrics().density);
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 line.setLayoutParams(params);
-                line.setBackgroundColor(Color.RED);
+                line.setBackgroundColor(lineColor);
             }
             this.issuersRadioGroup.addView(allRadioButton);
             this.issuersRadioGroup.addView(line);
@@ -316,6 +326,7 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
                     rb.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
 //                    rb.setGravity(Gravity.START);
                     rb.setOnClickListener(this);
+                    rb.setTextColor(textColor);
                     this.radioButtons.add(rb);
                 }
                 rb.setText(issuers[i]);

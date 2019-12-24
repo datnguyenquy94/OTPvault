@@ -28,6 +28,7 @@ import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
 import org.fedorahosted.freeotp.common.Callback;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 
 import android.content.Intent;
@@ -45,8 +46,8 @@ import com.squareup.picasso.Picasso;
 
 public class EditActivity extends AbstractActivity implements TextWatcher, View.OnClickListener {
 
-    public static final String  EXTRA_POSITION = "position";
-    private int                 mPosition;
+    public static final String  EXTRA_ID = "EXTRA_ID";
+    private long                 mTokenId;
 
     private EditText           mIssuer;
     private EditText           mLabel;
@@ -84,16 +85,17 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, true);
         setContentView(R.layout.edit);
 
         // Get the position of the token. This MUST exist.
-        mPosition = getIntent().getIntExtra(EXTRA_POSITION, -1);
-        if(BuildConfig.DEBUG && mPosition < 0)
+        this.mTokenId = getIntent().getLongExtra(EXTRA_ID, -1);
+        if(BuildConfig.DEBUG && mTokenId < 0)
             throw new RuntimeException("Could not create Activity");
 
         // Get token values.
         token = ((FreeOTPApplication)this.getApplicationContext())
-                .getTokenPersistence().get(getPosition());
+                .getTokenPersistence().get(mTokenId);
         mIssuerCurrent = token.getIssuer();
         mLabelCurrent = token.getLabel();
         mImageCurrent = token.getImage();
@@ -180,13 +182,13 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
             case R.id.save:
                 TokenPersistence tokenPersistence = ((FreeOTPApplication)this.getApplicationContext())
                         .getTokenPersistence();;
-                Token token = tokenPersistence.get(getPosition());
+                Token token = tokenPersistence.get(mTokenId);
                 token.setIssuer(mIssuer.getText().toString());
                 token.setLabel(mLabel.getText().toString());
                 if (token.getImage() == null || token.getImage().compareTo(mImageDisplay) != 0)
                     token.setImage(mImageDisplay);
                 TokenPersistence.updateAsync(application,
-                        mPosition,
+                        mTokenId,
                         token,
                         new Callback() {
                             @Override
@@ -208,9 +210,5 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
         super.onPause();
         //- select image from outside, activity need to pause in this time.
 //        this.finishAndRemoveTask();
-    }
-
-    protected int getPosition() {
-        return mPosition;
     }
 }

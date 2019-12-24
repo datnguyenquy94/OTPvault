@@ -22,6 +22,7 @@ import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
 import org.fedorahosted.freeotp.activities.edit.DeleteActivity;
 import org.fedorahosted.freeotp.common.Callback;
+import org.fedorahosted.freeotp.common.Utils;
 
 import java.io.File;
 
@@ -38,6 +39,7 @@ public class ImportActivity extends AbstractActivity implements TextWatcher, Vie
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, true);
         setContentView(R.layout.import_layout);
 
         Intent intent = this.getIntent();

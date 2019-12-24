@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
@@ -34,8 +35,15 @@ import android.util.TypedValue;
 import android.view.View;
 
 import org.fedorahosted.freeotp.R;
+import org.fedorahosted.freeotp.common.Utils;
 
 public class ProgressCircle extends View {
+
+    private int     mColorRed;
+    private int     mColorBlue;
+    private int     mColorGreen;
+    private int     mColorAlpha;
+
     private Paint   mPaint;
     private RectF   mRectF;
     private Rect    mRect;
@@ -62,6 +70,12 @@ public class ProgressCircle extends View {
 
     private void setup(Context context, AttributeSet attrs) {
         DisplayMetrics dm = getResources().getDisplayMetrics();
+        int color = Utils.getThemeColor(context, R.attr.colorSchemePrimary);
+        mColorRed = 0xFF & ( color >> 16);
+        mColorAlpha = 0xFF & (color >> 24);
+        mColorBlue = 0xFF & (color >> 0 );
+        mColorGreen = 0xFF & (color >> 8 );
+
         mPadding = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, dm);
         mStrokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, dm);
 
@@ -69,7 +83,8 @@ public class ProgressCircle extends View {
         mRect = new Rect();
 
         mPaint = new Paint();
-        mPaint.setARGB(0x99, 0x33, 0x33, 0x33);
+//        mPaint.setARGB(0x99, 0x33, 0x33, 0x33);
+        mPaint.setARGB(mColorAlpha, mColorRed, mColorGreen, mColorBlue);
         mPaint.setAntiAlias(true);
         mPaint.setStrokeCap(Paint.Cap.BUTT);
 
@@ -109,9 +124,11 @@ public class ProgressCircle extends View {
 
         int percent = mProgress * 100 / getMax();
         if (percent > 25 || mProgress == 0)
-            mPaint.setARGB(0x99, 0x33, 0x33, 0x33);
+            mPaint.setARGB(mColorAlpha, mColorRed, mColorGreen, mColorBlue);
+//            mPaint.setARGB(0x99, 0x33, 0x33, 0x33);
         else
-            mPaint.setARGB(0x99, 0xff, 0xe0 * percent / 25, 0x00);
+            mPaint.setARGB(mColorAlpha, 0xff, 0xe0 * percent / 25, 0x00);
+//            mPaint.setARGB(0x99, 0xff, 0xe0 * percent / 25, 0x00);
 
         invalidate();
     }

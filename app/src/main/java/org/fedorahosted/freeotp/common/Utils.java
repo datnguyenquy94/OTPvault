@@ -1,13 +1,18 @@
 package org.fedorahosted.freeotp.common;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.util.TypedValue;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
+import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 
 import java.io.File;
@@ -112,6 +117,56 @@ public class Utils {
                 token.setImage(null);
             }
             return token;
+        }
+    }
+
+    public static String bytesToString(byte[] bytes){
+        if (bytes == null || bytes.length <=0)
+            return "";
+
+        StringBuilder result = new StringBuilder();
+        result.append('[');
+        result.append(bytes[0]);
+        for (int i = 1; i<bytes.length; i++){
+            result = result.append(",");
+            result = result.append(bytes[i]);
+        }
+        result.append(']');
+
+        return result.toString();
+    }
+
+    public static byte[] stringToBytes(String str){
+        String[] bytes = str.split(",");
+        byte[] result = new byte[bytes.length];
+
+        for (int i = 0; i<bytes.length; i++)
+            result[i] = Byte.parseByte(bytes[i]);
+
+        return result;
+    }
+
+    public static int getThemeColor(Context context, int attr){
+        TypedValue typedValue = new TypedValue();
+        if (context.getTheme().resolveAttribute(attr, typedValue, true))
+            return typedValue.data;
+        else
+            return Color.TRANSPARENT;
+    }
+
+    public static void setTheme(Activity activity, boolean isDialogMode){
+        String theme = PreferenceManager.getDefaultSharedPreferences(activity).getString("theme", "light").toLowerCase();
+        if (theme.compareTo("light") == 0 && isDialogMode == true){
+            activity.setTheme(R.style.Light_Dialog);
+        } else if (theme.compareTo("light") == 0 && isDialogMode == false) {
+            activity.setTheme(R.style.Light);
+        } else if (theme.compareTo("dark") == 0 && isDialogMode == true){
+            activity.setTheme(R.style.Dark_Dialog);
+//            activity.setTheme(R.style.Dark);
+        } else if (theme.compareTo("dark") == 0 && isDialogMode == false){
+            activity.setTheme(R.style.Dark);
+        } else {
+            activity.setTheme(R.style.Light);
         }
     }
 

@@ -33,12 +33,14 @@ import android.widget.TextView;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
+import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.TokenCode;
 import org.fedorahosted.freeotp.views.ProgressCircle;
 
 public class TokenLayout extends FrameLayout implements View.OnClickListener, Runnable {
+    private FreeOTPApplication application;
     private ProgressCircle mProgressInner;
     private ProgressCircle mProgressOuter;
     private ImageView mImage;
@@ -49,20 +51,23 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
     private PopupMenu mPopupMenu;
 
     private TokenCode mCodes;
-    private Token.TokenType mType;
+    private String mType;
     private String mPlaceholder;
     private long mStartTime;
 
     public TokenLayout(Context context) {
         super(context);
+        this.application = (FreeOTPApplication) context.getApplicationContext();
     }
 
     public TokenLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.application = (FreeOTPApplication) context.getApplicationContext();
     }
 
     public TokenLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        this.application = (FreeOTPApplication) context.getApplicationContext();
     }
 
     @Override
@@ -99,9 +104,19 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
         mProgressOuter.setVisibility(View.GONE);
 
         // Get the code placeholder.
-        char[] placeholder = new char[token.getDigits()];
-        for (int i = 0; i < placeholder.length; i++)
-            placeholder[i] = '-';
+        char[] placeholder;
+        if (this.application.getSettingsPreference().getBoolean("splitTokenCode", false)){
+            placeholder = new char[token.getDigits()+1];
+            for (int i = 0; i < placeholder.length; i++)
+                if (i == 3)
+                    placeholder[i] = ' ';
+                else
+                    placeholder[i] = '-';
+        } else {
+            placeholder = new char[token.getDigits()];
+            for (int i = 0; i < placeholder.length; i++)
+                placeholder[i] = '-';
+        }
         mPlaceholder = new String(placeholder);
 
         // Show the image.
@@ -131,7 +146,7 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
         view.startAnimation(a);
     }
 
-    public void start(Token.TokenType type, TokenCode codes, boolean animate) {
+    public void start(String type, TokenCode codes, boolean animate) {
         mCodes = codes;
         mType = type;
 
@@ -142,10 +157,10 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
 
         // Handle type-specific UI.
         switch (type) {
-            case HOTP:
+            case Token.TokenType.HOTP:
                 setEnabled(false);
                 break;
-            case TOTP:
+            case Token.TokenType.TOTP:
                 mProgressOuter.setVisibility(View.VISIBLE);
                 animate(mProgressOuter, R.anim.fadein, animate);
                 break;
@@ -169,10 +184,12 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
             if (!isEnabled())
                 setEnabled(System.currentTimeMillis() - mStartTime > 5000);
 
+            if (this.application.getSettingsPreference().getBoolean("splitTokenCode", false) && code.length() > 3)
+                code = code.substring(0, 3) + " " + code.substring(3);
             // Update the fields
             mCode.setText(code);
             mProgressInner.setProgress(mCodes.getCurrentProgress());
-            if (mType != Token.TokenType.HOTP)
+            if (mType.compareTo(Token.TokenType.HOTP) != 0)
                 mProgressOuter.setProgress(mCodes.getTotalProgress());
 
             postDelayed(this, 100);

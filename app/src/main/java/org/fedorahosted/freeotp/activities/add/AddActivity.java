@@ -154,6 +154,7 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, true);
         setContentView(R.layout.add);
 
         // Get references to widgets.

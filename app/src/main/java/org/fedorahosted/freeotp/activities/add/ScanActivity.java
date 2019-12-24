@@ -26,6 +26,7 @@ import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.storage.TokenPersistence;
 
 import android.content.BroadcastReceiver;
@@ -34,7 +35,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -147,6 +147,7 @@ public class ScanActivity extends AbstractActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, false);
         receiver = new ScanBroadcastReceiver();
         this.registerReceiver(receiver, new IntentFilter(ScanBroadcastReceiver.ACTION));
         setContentView(R.layout.scan);

@@ -1,5 +1,6 @@
 package org.fedorahosted.freeotp.activities.settings;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Environment;
 
@@ -9,16 +10,18 @@ import androidx.preference.SeekBarPreference;
 
 import org.fedorahosted.freeotp.R;
 
+@SuppressLint("ApplySharedPref")
 public class SettingsFragment extends PreferenceFragmentCompat implements
         Preference.OnPreferenceChangeListener,
         Preference.OnPreferenceClickListener {
 
     private SettingsActivity settingsActivity;
 
-    private Preference backupNowPreference;
-    private Preference importNowPreference;
-    private SeekBarPreference lockTimeOutPreference;
-    private Preference backupLocationPreference;
+    private SeekBarPreference   lockTimeOutPreference;
+    private Preference          backupNowPreference;
+    private Preference          importNowPreference;
+    private Preference          backupLocationPreference;
+    private Preference          changePasswordPreference;
 
     public SettingsFragment(SettingsActivity parent) throws Exception {
         this.settingsActivity = parent;
@@ -31,6 +34,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         this.backupLocationPreference = findPreference("backupLocation");
         this.backupNowPreference = findPreference("backupNow");
         this.importNowPreference = findPreference("importNow");
+        this.changePasswordPreference = findPreference("changePassword");
 
         if (this.backupLocationPreference.getSharedPreferences().getString(this.backupLocationPreference.getKey(), "").isEmpty())
             this.backupLocationPreference.getSharedPreferences().edit()
@@ -40,6 +44,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
         this.backupNowPreference.setOnPreferenceClickListener(this);
         this.importNowPreference.setOnPreferenceClickListener(this);
         this.backupLocationPreference.setOnPreferenceClickListener(this);
+        this.changePasswordPreference.setOnPreferenceClickListener(this);
+
         this.lockTimeOutPreference.setOnPreferenceChangeListener(this);
 
         this.updateLockTimeoutSummary(this.lockTimeOutPreference, this.lockTimeOutPreference.getValue());
@@ -60,6 +66,8 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
             return this.settingsActivity.backupToken();
         } else if (preference.getKey().compareTo(importNowPreference.getKey()) == 0) {
             return this.settingsActivity.requestToPickImportFile();
+        } else if (preference.getKey().compareTo(changePasswordPreference.getKey()) == 0) {
+            return this.settingsActivity.requestToChangeAppPassword();
         } else {
             return false;
         }

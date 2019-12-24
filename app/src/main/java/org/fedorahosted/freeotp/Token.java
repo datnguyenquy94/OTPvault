@@ -34,6 +34,7 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.BaseColumns;
 
 import androidx.annotation.Nullable;
 
@@ -47,8 +48,13 @@ public class Token {
         private static final long serialVersionUID = -1108624734612362345L;
     }
 
-    public static enum TokenType {
-        HOTP, TOTP
+//    public static enum TokenType2 {
+//        HOTP, TOTP
+//    }
+
+    public static class TokenType {
+        public static final String HOTP = "HOTP";
+        public static final String TOTP = "TOTP";
     }
 
     private static char[] STEAMCHARS = new char[] {
@@ -60,12 +66,28 @@ public class Token {
     private String issuer;//- the orignal issuer
     private String label;//- the orignal label
     private String image;//- the orignal image
-    private TokenType type;
+    private String type;
     private String algo;
     private byte[] secret;
     private int digits;
     private long counter;
     private int period;
+    private long id;//- For sort.
+
+    /* Inner class that defines the database table contents */
+    public static abstract class TokenEntry implements BaseColumns {
+        public static final String TABLE_NAME = "tokens";
+        public static final String COLUMN_NAME_ISSUER = "issuer";
+        public static final String COLUMN_NAME_LABEL = "label";
+        public static final String COLUMN_NAME_IMAGE = "image";
+        public static final String COLUMN_NAME_TYPE = "type";
+        public static final String COLUMN_NAME_ALGO = "algo";
+        public static final String COLUMN_NAME_SECRET = "secret";
+        public static final String COLUMN_NAME_DIGITS = "digits";
+        public static final String COLUMN_NAME_COUNTER = "counter";
+        public static final String COLUMN_NAME_PERIOD = "period";
+        public static final String COLUMN_NAME_ID = "id";
+    }
 
     private Token(Uri uri, boolean internal) throws TokenUriInvalidException {
         validateTokenURI(uri);
@@ -114,7 +136,7 @@ public class Token {
             throw new TokenUriInvalidException();
         }
 
-        if (type == TokenType.HOTP) {
+        if (TokenType.HOTP.compareTo(type) == 0) {
             try {
                 String c = uri.getQueryParameter("counter");
                 if (c == null)
@@ -213,9 +235,9 @@ public class Token {
         return "";
     }
 
-    public Token(String uri, boolean internal) throws TokenUriInvalidException {
-        this(Uri.parse(uri), internal);
-    }
+//    public Token(String uri, boolean internal) throws TokenUriInvalidException {
+//        this(Uri.parse(uri), internal);
+//    }
 
     public Token(Uri uri) throws TokenUriInvalidException {
         this(uri, false);
@@ -225,14 +247,8 @@ public class Token {
         this(Uri.parse(uri));
     }
 
-    public String getID() {
-        String id;
-        if (issuer != null && !issuer.equals(""))
-            id = issuer+ ":" + label;
-        else
-            id = label;
+    public Token(){
 
-        return Constants.TOKEN_PREFIX_ID + id;
     }
 
     // NOTE: This changes internal data. You MUST save the token immediately.
@@ -240,21 +256,57 @@ public class Token {
         this.issuer = issuer;
     }
 
-    public String getIssuer() {
-        return this.issuer;
-    }
-
     // NOTE: This changes internal data. You MUST save the token immediately.
     public void setLabel(String label) {
         this.label = label;
     }
 
+    public void setImage(Uri image) {
+        if (image == null)
+            this.image = null;
+        else
+            this.image = image.toString();
+    }
+
+    public void setCounter(long counter) {
+        this.counter = counter;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getIssuer() {
+        return this.issuer;
+    }
     public String getLabel() {
         return this.label;
     }
-
     public int getDigits() {
         return digits;
+    }
+    public byte[] getSecret() {
+        return secret;
+    }
+    public int getPeriod() {
+        return period;
+    }
+    public String getType() {
+        return type;
+    }
+    public Uri getImage() {
+        if (image != null && !image.isEmpty())
+            return Uri.parse(image);
+        return null;
+    }
+    public long getCounter() {
+        return counter;
+    }
+    public long getId() {
+        return id;
+    }
+    public String getAlgo(){
+        return this.algo;
     }
 
     // NOTE: This may change internal data. You MUST save the token immediately.
@@ -262,10 +314,10 @@ public class Token {
         long cur = System.currentTimeMillis();
 
         switch (type) {
-        case HOTP:
+        case TokenType.HOTP:
             return new TokenCode(getHOTP(counter++), cur, cur + (period * 1000));
 
-        case TOTP:
+        case TokenType.TOTP:
             long counter = cur / 1000 / period;
             return new TokenCode(getHOTP(counter + 0),
                                  (counter + 0) * period * 1000,
@@ -276,10 +328,6 @@ public class Token {
         }
 
         return null;
-    }
-
-    public TokenType getType() {
-        return type;
     }
 
     public Uri toUri() {
@@ -293,11 +341,11 @@ public class Token {
                 .appendQueryParameter("period", Integer.toString(period));
 
         switch (type) {
-        case HOTP:
+        case TokenType.HOTP:
             builder.authority("hotp");
             builder.appendQueryParameter("counter", Long.toString(counter + 1));
             break;
-        case TOTP:
+        case TokenType.TOTP:
             builder.authority("totp");
             break;
         }
@@ -331,33 +379,17 @@ public class Token {
 //        }
 //    }
 
-    public void setImage(Uri image) {
-        if (image == null)
-            this.image = null;
-        else
-            this.image = image.toString();
-    }
-
-    public Uri getImage() {
-        if (image != null)
-            return Uri.parse(image);
-
-        return null;
-    }
-
-    public long getCounter() {
-        return counter;
-    }
-
-    public void setCounter(long counter) {
-        this.counter = counter;
-    }
-
     //- Return token image filename.
     //- Token's image can be exist or not.
     //- But if it is, then this is the name of it.
     public String getImageFileName(){
-        return this.getID() + ".png";
+        String fileName;
+        if (issuer != null && !issuer.equals(""))
+            fileName = issuer+ ":" + label;
+        else
+            fileName = label;
+
+        return Constants.TOKEN_PREFIX_ID + fileName + ".png";
     }
 
     @Override
@@ -380,9 +412,9 @@ public class Token {
             return false;
         else if (!Arrays.equals(this.secret, token.secret))
             return false;
-        else if (this.type != token.type)
+        else if (this.type.compareTo(token.type) != 0)
             return false;
-        else if (this.type == TokenType.HOTP && this.counter != token.counter )
+        else if (this.type.compareTo(TokenType.HOTP) == 0 && this.counter != token.counter )
             return false;
         else
             return true;

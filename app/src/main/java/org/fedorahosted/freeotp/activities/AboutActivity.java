@@ -30,11 +30,13 @@ import android.widget.TextView;
 
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.common.Utils;
 
 public class AboutActivity extends AbstractActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, true);
         setContentView(R.layout.about);
     }
 

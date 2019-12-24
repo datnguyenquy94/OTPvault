@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.fedorahosted.freeotp.FreeOTPApplication;
+import org.fedorahosted.freeotp.activities.ChangePasswordActivity;
 import org.fedorahosted.freeotp.activities.LoginActivity;
 import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
 
@@ -30,7 +31,10 @@ public class IdleWatcher extends AsyncTask<FreeOTPApplication, Void, Void> {
                             .getDefaultSharedPreferences(application).getInt("lockTimeOut", 30);
                     if ( !this.application.isLogged() ) {
                         this.cancel(true);
-                    } else if ( this.application.getCurrentActivityClassName().compareTo(SettingsActivity.class.getName()) == 0 ){
+                    } else if ( this.application.getCurrentActivityClassName().compareTo(SettingsActivity.class.getName()) == 0 &&
+                                this.application.getCurrentActivityClassName().compareTo(ChangePasswordActivity.class.getName()) == 0 ){
+                      //- Also, not logout if user is changing password. Avoid confiled or any god know what it is can destroy app's data...
+
                       //- Not apply IdleWatcher to SettingsActivity.
                       //- Because IdleWatcher cant record lastTimeInteraction on SettingsActivity's folder and backup fileChooser
                       //- Temporary disable IdleWatcher by update lastTimeInteraction to current time.

@@ -25,6 +25,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,10 +46,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TokenAdapter extends BaseReorderableAdapter {
+    private final String LOG_TAG = this.getClass().getName();
+
     private final TokenPersistence mTokenPersistence;
     private final LayoutInflater mLayoutInflater;
     private final ClipboardManager mClipMan;
-    private final Map<String, TokenCode> mTokenCodes;
+    private final Map<Long, TokenCode> mTokenCodes;
 
     public TokenAdapter(Context ctx) {
         mTokenPersistence = ((FreeOTPApplication)ctx.getApplicationContext())
@@ -86,7 +89,13 @@ public class TokenAdapter extends BaseReorderableAdapter {
 
     @Override
     protected void move(int fromPosition, int toPosition) {
-        mTokenPersistence.move(fromPosition, toPosition);
+        try {
+            if (fromPosition != toPosition)
+                mTokenPersistence.move(fromPosition, toPosition);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, e.getMessage());
+            e.printStackTrace();
+        }
         notifyDataSetChanged();
     }
 
@@ -104,13 +113,13 @@ public class TokenAdapter extends BaseReorderableAdapter {
                 switch (item.getItemId()) {
                     case R.id.action_edit:
                         i = new Intent(ctx, EditActivity.class);
-                        i.putExtra(EditActivity.EXTRA_POSITION, position);
+                        i.putExtra(EditActivity.EXTRA_ID, token.getId());
                         ctx.startActivity(i);
                         break;
 
                     case R.id.action_delete:
                         i = new Intent(ctx, DeleteActivity.class);
-                        i.putExtra(DeleteActivity.EXTRA_POSITION, position);
+                        i.putExtra(DeleteActivity.EXTRA_ID, token.getId());
                         ctx.startActivity(i);
                         break;
                 }
@@ -131,7 +140,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
                     TokenCode codes = token.generateCodes();
                     //save token. Image wasn't changed here, so just save it in sync
                     ((FreeOTPApplication)ctx.getApplicationContext())
-                            .getTokenPersistence().update(position, token);
+                            .getTokenPersistence().update(token.getId(), token);
 
                     // Copy code to clipboard.
                     mClipMan.setPrimaryClip(ClipData.newPlainText(null, codes.getCurrentCode()));
@@ -139,7 +148,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
                             R.string.code_copied,
                             Toast.LENGTH_SHORT).show();
 
-                    mTokenCodes.put(token.getID(), codes);
+                    mTokenCodes.put(token.getId(), codes);
                     ((TokenLayout) v).start(token.getType(), codes, true);
                 } catch(Exception e){
                     e.printStackTrace();
@@ -148,7 +157,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
             }
         });
 
-        TokenCode tc = mTokenCodes.get(token.getID());
+        TokenCode tc = mTokenCodes.get(token.getId());
         if (tc != null && tc.getCurrentCode() != null)
             tl.start(token.getType(), tc, false);
     }
@@ -156,5 +165,11 @@ public class TokenAdapter extends BaseReorderableAdapter {
     @Override
     protected View createView(ViewGroup parent, int type) {
         return mLayoutInflater.inflate(R.layout.token, parent, false);
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        this.mTokenPersistence.updateTokenIndex();
+        super.notifyDataSetChanged();
     }
 }

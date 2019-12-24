@@ -55,9 +55,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //- Support open a backup EncryptedSharedPreferences with different filename than the original file.
 public final class EncryptedSharedPreferences implements SharedPreferences {
 
-    private static final String KEY_KEYSET_ALIAS =
+    public static final String KEY_KEYSET_ALIAS =
             "__androidx_security_crypto_encrypted_prefs_key_keyset__";
-    private static final String VALUE_KEYSET_ALIAS =
+    public static final String VALUE_KEYSET_ALIAS =
             "__androidx_security_crypto_encrypted_prefs_value_keyset__";
 
     private static final String NULL_VALUE = "__NULL__";
@@ -139,12 +139,12 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
         KeysetHandle daeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefKeyEncryptionScheme.getKeyTemplate())
-                .withSharedPref(context, KEY_KEYSET_ALIAS, originalFileName)
+                .withSharedPref(context, KEY_KEYSET_ALIAS, fileName)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
         KeysetHandle aeadKeysetHandle = new AndroidKeysetManager.Builder()
                 .withKeyTemplate(prefValueEncryptionScheme.getKeyTemplate())
-                .withSharedPref(context, VALUE_KEYSET_ALIAS, originalFileName)
+                .withSharedPref(context, VALUE_KEYSET_ALIAS, fileName)
                 .withMasterKeyUri(KEYSTORE_PATH_URI + masterKeyAlias)
                 .build().getKeysetHandle();
 

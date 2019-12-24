@@ -22,11 +22,11 @@ package org.fedorahosted.freeotp.storage;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.Token;
@@ -35,99 +35,98 @@ import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.activities.MainActivity;
 
 import java.io.File;
+import java.util.List;
 
 public class TokenPersistence {
 
-    private final Gson gson;
-    private final IssuerStorage issuerStorage;
-    private final TokenStorage tokenStorage;
+    private final TokenDbStorage tokenDbStorage;
 
+    private List<Long> tokenIndex;
     private boolean isFilterOn = false;
     private String issuerFilterParameter = "";
 
     public TokenPersistence(Context ctx) {
-        this.gson = ((FreeOTPApplication) ctx.getApplicationContext()).getGson();
-        this.issuerStorage = new IssuerStorage((FreeOTPApplication) ctx.getApplicationContext(), gson);
-        this.tokenStorage = new TokenStorage((FreeOTPApplication) ctx.getApplicationContext(), gson);
+        this.tokenDbStorage = new TokenDbStorage((FreeOTPApplication) ctx.getApplicationContext());
+        this.updateTokenIndex();
+    }
+
+    public void updateTokenIndex(){
+        if (this.isFilterOn){
+            tokenIndex = this.tokenDbStorage.getTokenIndex(this.issuerFilterParameter);
+        } else {
+            tokenIndex = this.tokenDbStorage.getTokenIndex();
+        }
     }
 
     public int length() {
-        if (this.isFilterOn)
-            return this.issuerStorage.getIssuerTokenIndexLength(this.issuerFilterParameter);
-        else
-            return this.tokenStorage.getTokenIndexLength();
+        if (tokenIndex == null)
+            this.updateTokenIndex();
+        return this.tokenIndex.size();
     }
 
-    public boolean tokenExists(String tokenId) {
-        return this.tokenStorage.tokenExists(tokenId);
+    public boolean exist(Long tokenId) {
+        try {
+            return this.tokenDbStorage.exist(tokenId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Token exist(String issuer, String label) throws Exception {
+        return this.tokenDbStorage.exist(issuer, label);
     }
 
     public Token get(int position) {
-        if (this.isFilterOn)
-            return this.tokenStorage.get(this.issuerStorage.getKey(this.issuerFilterParameter, position));
+        if (this.tokenIndex == null ||
+            this.tokenIndex.size() <= 0 ||
+            position < 0 ||
+            position >= this.tokenIndex.size())
+            return null;
         else
-            return this.tokenStorage.get(position);
+            return this.tokenDbStorage.get(this.tokenIndex.get(position));
     }
 
-    public Token get(String key){
-        return this.tokenStorage.get(key);
+    public Token get(long tokenId){
+        return this.tokenDbStorage.get(tokenId);
     }
 
     public void add(Token newToken) throws Exception {
-        try {
-            if (this.tokenStorage.tokenExists(newToken.getID()))
-                throw new Exception("Token exist.");
-            this.issuerStorage.addTokenKeyOnIssuerIndex(newToken.getIssuer(), newToken.getID());//- add token key on isserTokenIndex.
-            this.tokenStorage.add(newToken);
-        } catch(NullPointerException npE){
-            npE.printStackTrace();
-            throw new Exception("Internal error...");
-        }
+        if (this.exist(newToken.getIssuer(), newToken.getLabel()) != null)
+            throw new Exception("Token exist.");
+        this.tokenDbStorage.add(newToken);
     }
 
-    public Token update(int position, Token editedToken) throws Exception {
-        try {
-            Token oldToken = this.get(position);
-            if (oldToken == null)
-                throw new Exception("Token not found.");
-            if (editedToken.getIssuer() == null || editedToken.getLabel() == null)
-                throw new Exception("Issuer or Label not found.");
-
-            editedToken = this.tokenStorage.update(oldToken.getID(), editedToken);
-            if (editedToken == null)
-                throw new Exception("Update token failed.");
-
-            if (oldToken.getIssuer().compareTo(editedToken.getIssuer()) != 0) {//- update issuer token index.
-                //- remove token key on old issuerTokenIndex.
-                this.issuerStorage.removeTokenKeyOnIssuerIndex(oldToken.getIssuer(), oldToken.getID());
-                //- add token key on new isserTokenIndex.
-                this.issuerStorage.addTokenKeyOnIssuerIndex(editedToken.getIssuer(), editedToken.getID());
-            }
-            return editedToken;
-        } catch(NullPointerException npE){
-            npE.printStackTrace();
-            throw new Exception("Internal error.");
-        }
+    public Token update(long tokenIndex, Token editedToken) throws Exception {
+        this.tokenDbStorage.update(tokenIndex, editedToken);
+        return editedToken;
     }
 
-    public void move(int fromPosition, int toPosition) {
-        if (this.isFilterOn)
-            this.issuerStorage.move(this.issuerFilterParameter, fromPosition, toPosition);
+    public void move(int fromPosition, int toPosition) throws Exception {
+        if (this.tokenIndex == null || tokenIndex.size() == 0 ||
+            fromPosition < 0 || toPosition < 0 ||
+            fromPosition >= this.tokenIndex.size() || toPosition >= this.tokenIndex.size() )
+            throw new Exception("Unknown internal error.");
         else
-            this.tokenStorage.move(fromPosition, toPosition);
+            this.tokenDbStorage.move(this.tokenIndex.get(fromPosition), this.tokenIndex.get(toPosition));
     }
 
-    public void delete(int position) {
-        Token token = this.get(position);
+    public void delete(int position) throws Exception {
+        if (this.tokenIndex == null || tokenIndex.size() == 0 ||
+            position < 0 || position >= this.tokenIndex.size())
+            throw new Exception("Unknown internal error.");
+        else {
+            this.tokenDbStorage.delete(this.tokenIndex.get(position));
+        }
+    }
 
-        String key = token.getID();
-
-        this.tokenStorage.delete(key);
-        this.issuerStorage.removeTokenKeyOnIssuerIndex(token.getIssuer(), key);//- remove token key on issuerTokenIndex.
+    public void delete(long tokenIndex) throws Exception {
+        this.tokenDbStorage.delete(tokenIndex);
     }
 
     public String[] getIssuers(){
-        return this.issuerStorage.getIssuers();
+        List<String> issuers = this.tokenDbStorage.getIssuers();
+        return issuers.toArray(new String[issuers.size()]);
     }
 
     public void setFilter(String issuer){
@@ -136,6 +135,11 @@ public class TokenPersistence {
         else
             this.isFilterOn = false;
         this.issuerFilterParameter = issuer;
+        this.updateTokenIndex();
+    }
+
+    public Token[] getAll(SQLiteDatabase sqLiteDatabase){
+        return this.tokenDbStorage.getAll(sqLiteDatabase);
     }
 
     /**
@@ -144,7 +148,7 @@ public class TokenPersistence {
      * @param editedToken Token (with Image, Image will be saved by the async task)
      */
     public static void updateAsync(Context context,
-                                   final int position,
+                                   final long tokenIndex,
                                    final Token editedToken,
                                    final Callback callback) {
         File outFile = null;
@@ -158,7 +162,7 @@ public class TokenPersistence {
                 //we downloaded the image, now save/update it normally
                 try {
                     Token resultToken = ((FreeOTPApplication)returnParams.context.getApplicationContext())
-                            .getTokenPersistence().update(position, returnParams.getToken());
+                            .getTokenPersistence().update(tokenIndex, returnParams.getToken());
                     callback.success(resultToken);
                 } catch (Exception e) {
                     e.printStackTrace();

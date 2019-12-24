@@ -24,4 +24,12 @@
         <attr name="outer" format="boolean" />
         <attr name="hollow" format="boolean" />
     </declare-styleable>
+
+    <attr name="colorSchemePrimary" format="reference" />
+    <attr name="colorSchemeSecondary" format="reference" />
+
+    <attr name="colorSchemeBackgroundPrimary" format="reference" />
+    <attr name="colorSchemeBackgroundSecondary" format="reference" />
+
+    <attr name="colorSchemeTertiary" format="reference" />
 </resources>

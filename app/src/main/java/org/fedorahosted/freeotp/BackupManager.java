@@ -1,6 +1,8 @@
 package org.fedorahosted.freeotp;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -9,6 +11,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+
+import net.sqlcipher.database.SQLiteDatabase;
 
 import org.fedorahosted.freeotp.common.Callback;
 import org.fedorahosted.freeotp.common.Constants;
@@ -30,11 +34,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@SuppressLint("ApplySharedPref")
 public class BackupManager {
 
     private static final String LOG_TAG = Utils.class.getName();
 
-    private static boolean backup(FreeOTPApplication application){
+    public static boolean backup(FreeOTPApplication application, String outputSuffix){
+        if (outputSuffix == null)
+            outputSuffix = "";
         boolean backupFileWithTimeStamp = application.getSettingsPreference().getBoolean("backupFileWithTimeStamp", false);
         String backupFileName = application.getSettingsPreference().getString("backupFileName", "");
         String backupLocation = application.getSettingsPreference().getString("backupLocation", "");
@@ -43,18 +50,18 @@ public class BackupManager {
         if (backupFileName.isEmpty() || backupLocation.isEmpty())
             return false;
         if (backupFileWithTimeStamp)
-            backupOutputFile = backupLocation + "/" + backupFileName + System.currentTimeMillis() + ".zip";
+            backupOutputFile = backupLocation + "/" + backupFileName + System.currentTimeMillis() + outputSuffix + ".zip";
         else
-            backupOutputFile = backupLocation + "/" + backupFileName + ".zip";
+            backupOutputFile = backupLocation + "/" + backupFileName + outputSuffix + ".zip";
 
         File[] images = application.getImageFolder().listFiles();
-        File sharedPreferenceStoreFile = application.getSharedPreferenceStoreFile();
+        File dbStorageFile = application.getDbStorageFile();
         List<String> files = new ArrayList<>();
 
         for (File e: images){
             files.add(e.getAbsolutePath());
         }
-        files.add(sharedPreferenceStoreFile.getAbsolutePath());
+        files.add(dbStorageFile.getAbsolutePath());
 
         return BackupManager.zip(files, backupOutputFile);
     }
@@ -95,9 +102,10 @@ public class BackupManager {
             //- Clean work folders before import.====================
             BackupManager.createFallbackBackup(application);
             Utils.clearFolder(application.getTmpFolder(), 0);
-            File sharedPreferenceTemporaryFile = application.getSharedPreferenceTemporaryFile();
-            if (sharedPreferenceTemporaryFile.exists())
-                sharedPreferenceTemporaryFile.delete();
+//            File dbStorageTemporaryFile = application.getDbStorageTemporaryFile();
+//            if (dbStorageTemporaryFile.exists()) {
+//                dbStorageTemporaryFile.delete();
+//            }
             //- =====================================================
 
             boolean unzipResult = BackupManager.unzip(zipInputFile, application.getTmpFolder());
@@ -106,35 +114,28 @@ public class BackupManager {
 
 
             //- Get backup SharePreference from zip backup.
-            File sharedPreferenceStoreBackupInputFile = new File(application.getTmpFolder(),
-                    Constants.SharedPreferenceStoreFile+".xml");
-            if (!sharedPreferenceStoreBackupInputFile.exists())
+            File dbStorageBackupInputFile = new File(application.getTmpFolder(),
+                    Constants.DbStorageFile);
+            if (!dbStorageBackupInputFile.exists())
                 throw new Exception("Backup data not found.");
-            Utils.copy(sharedPreferenceStoreBackupInputFile, sharedPreferenceTemporaryFile);//- copy backupSharedPreferences to shared_prefs to read it.
+//            Utils.copy(dbStorageBackupInputFile, dbStorageTemporaryFile);//- copy backupSharedPreferences to shared_prefs to read it.
 
             TokenPersistence tokenPersistence = application.getTokenPersistence();
-            List<String> tokenIndex=null;
-            Token newToken;//- From backup files
-            String str;//- tmp string.
-            SharedPreferences backupSharedPreferences = application.openBackupTemporaryFile(backupPasswd);
-            str = backupSharedPreferences.getString(Constants.LST_TOKENS, "");
-            if (str != null && !str.isEmpty())
-                tokenIndex = new ArrayList<>(Arrays.asList(str.split(",")));
-            else
-                tokenIndex = new ArrayList<>();
+            SQLiteDatabase backupSQLiteDatabase = application.openBackupTemporaryDatabaseFile(dbStorageBackupInputFile, backupPasswd);
 
-            for (String newTokenId: tokenIndex){
+            Token[] newTokens = tokenPersistence.getAll(backupSQLiteDatabase);
+            backupSQLiteDatabase.close();
+            for (Token newToken: newTokens){
                 boolean isNewTokenExisted = false;
-                str = backupSharedPreferences.getString(newTokenId, null);
-                newToken = application.getGson().fromJson(str, Token.class);
                 File newTokenImage = new File(application.getTmpFolder(), newToken.getImageFileName());
 
                 //- Loop till it findout a new tokenId for newToken.
                 //- Or a token with same data as newToken in app's data then it skip(import) this newToken.
-                while(tokenPersistence.tokenExists(newToken.getID())){
-                    Token token = tokenPersistence.get(newToken.getID());
-                    if (token == null){
-                        throw new Exception("Import failed. Token id=["+newToken.getID()+"] should be exsit.");
+
+                while(true){
+                    Token token = tokenPersistence.exist(newToken.getIssuer(), newToken.getLabel());
+                    if (token == null){//- Not exsit yet.
+                        break;
                     } else if (token.equals(newToken)){//- This token already exsit in app's data.
                         isNewTokenExisted = true;
                         break;
@@ -156,8 +157,8 @@ public class BackupManager {
             }
 
             //- Clean work folders and data after import.================
-            if (sharedPreferenceTemporaryFile.exists())
-                sharedPreferenceTemporaryFile.delete();
+//            if (dbStorageTemporaryFile.exists())
+//                dbStorageTemporaryFile.delete();
             Utils.clearFolder(application.getTmpFolder(), 0);
             BackupManager.clearFallbackBackup(application);
             //- =========================================================
@@ -182,7 +183,7 @@ public class BackupManager {
         File src;
         File dst;
 
-        src = application.getSharedPreferenceStoreFile();
+        src = application.getDbStorageFile();
         dst = new File(application.getBackupFolder(), src.getName());
         Utils.copy(src, dst);
 
@@ -199,13 +200,13 @@ public class BackupManager {
         File src;
         File dst;
 
-        dst = application.getSharedPreferenceStoreFile();
+        dst = application.getDbStorageFile();
         src = new File(application.getBackupFolder(), dst.getName());
         Utils.copy(src, dst);
 
         File[] images = application.getBackupFolder().listFiles();
         for (File image: images){
-            if (image.getName().compareTo(application.getSharedPreferenceStoreFile().getName()) != 0){//- Isn't sharedpreference file.
+            if (image.getName().compareTo(application.getDbStorageFile().getName()) != 0){//- Isn't sharedpreference file.
                 src = image;
                 dst = new File(application.getImageFolder(), src.getName());
                 Utils.copy(src, dst);
@@ -293,7 +294,8 @@ public class BackupManager {
             //- Wait 1s before backup.
             try {
                 Thread.sleep(1000);
-                return BackupManager.backup((FreeOTPApplication) this.activityRef.get().getApplication());
+                return BackupManager.backup((FreeOTPApplication) this.activityRef.get().getApplication(),
+                        Constants.MANUALLY_BACKUP_SUFFIX_NAME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return false;

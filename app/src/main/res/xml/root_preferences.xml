@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory app:title="@string/appearance_header">
 
@@ -24,17 +25,18 @@
             <!--app:useSimpleSummaryProvider="true" />-->
 
         <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
+            app:defaultValue="Light"
+            app:entries="@array/themes"
+            app:entryValues="@array/themes"
             app:key="theme"
             app:title="@string/theme"
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreferenceCompat
-            app:key="tapToShowCode"
-            app:title="@string/tap_to_show_code"
-            app:summary="@string/tap_to_show_code_summary"/>
+            app:key="splitTokenCode"
+            app:defaultValue="true"
+            app:title="Split TokenCode into two parts"
+            app:summary="Add a whitespace in the middle of TokenCode."/>
 
     </PreferenceCategory>
 
@@ -69,14 +71,19 @@
             app:summary="The location which the backups will be saved."/>
 
         <SwitchPreferenceCompat
-            app:key="allowAutoBackup"
+            app:key="allowBackupByBroastcastIntent"
             app:defaultValue="true"
-            app:title="Allow automatic backup"
-            app:summary="Allow data to be backup automatic by a broastcase intent"/>
+            app:title="Allow backup by broastcast from thirdparty apps."
+            app:summary="Automatic backup tokens when receive broadcast intent from thirdparty apps (Example: Tasker)."/>
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/security_header">
+
+        <Preference
+            app:key="changePassword"
+            app:title="Change password"
+            app:summary="The app password also is the encrypt key for all your token data."/>
 
         <SwitchPreferenceCompat
             app:key="enableLockTimeout"

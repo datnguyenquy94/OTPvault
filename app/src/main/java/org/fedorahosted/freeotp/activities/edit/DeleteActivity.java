@@ -5,31 +5,34 @@ import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
+import org.fedorahosted.freeotp.common.Utils;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 public class DeleteActivity extends AbstractActivity {
-    public static final String  EXTRA_POSITION = "position";
-    private int                 mPosition;
+    public static final String  EXTRA_ID = "EXTRA_ID";
+    private long                 mTokenId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Utils.setTheme(this, true);
         setContentView(R.layout.delete);
 
         // Get the position of the token. This MUST exist.
-        mPosition = getIntent().getIntExtra(EXTRA_POSITION, -1);
-        if(BuildConfig.DEBUG && mPosition < 0)
+        mTokenId = getIntent().getLongExtra(EXTRA_ID, -1);
+        if(BuildConfig.DEBUG && mTokenId < 0)
             throw new RuntimeException("Could not create Activity");
 
         final Token token = ((FreeOTPApplication)this.getApplicationContext())
-                .getTokenPersistence().get(getPosition());
+                .getTokenPersistence().get(mTokenId);
         ((TextView) findViewById(R.id.issuer)).setText(token.getIssuer());
         ((TextView) findViewById(R.id.label)).setText(token.getLabel());
         Picasso.with(this)
@@ -47,9 +50,16 @@ public class DeleteActivity extends AbstractActivity {
 
         findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ((FreeOTPApplication)DeleteActivity.this.getApplicationContext())
-                        .getTokenPersistence().delete(getPosition());
-                finish();
+                try {
+                    ((FreeOTPApplication)DeleteActivity.this.getApplicationContext())
+                            .getTokenPersistence().delete(mTokenId);
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(DeleteActivity.this,
+                            e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -58,9 +68,5 @@ public class DeleteActivity extends AbstractActivity {
     protected void onPause() {
         super.onPause();
         this.finishAndRemoveTask();
-    }
-
-    protected int getPosition() {
-        return mPosition;
     }
 }
