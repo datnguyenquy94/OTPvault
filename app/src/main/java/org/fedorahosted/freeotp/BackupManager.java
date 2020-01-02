@@ -54,13 +54,9 @@ public class BackupManager {
         else
             backupOutputFile = backupLocation + "/" + backupFileName + outputSuffix + ".zip";
 
-        File[] images = application.getImageFolder().listFiles();
         File dbStorageFile = application.getDbStorageFile();
         List<String> files = new ArrayList<>();
 
-        for (File e: images){
-            files.add(e.getAbsolutePath());
-        }
         files.add(dbStorageFile.getAbsolutePath());
 
         return BackupManager.zip(files, backupOutputFile);
@@ -127,7 +123,6 @@ public class BackupManager {
             backupSQLiteDatabase.close();
             for (Token newToken: newTokens){
                 boolean isNewTokenExisted = false;
-                File newTokenImage = new File(application.getTmpFolder(), newToken.getImageFileName());
 
                 //- Loop till it findout a new tokenId for newToken.
                 //- Or a token with same data as newToken in app's data then it skip(import) this newToken.
@@ -146,12 +141,6 @@ public class BackupManager {
                 }
 
                 if (isNewTokenExisted == false){//- The newToken isn't exist in app's data. So import it.
-                    if (newToken.getImage() != null && newTokenImage.exists()){
-                        File newTokenImageDestination = new File(application.getImageFolder(),
-                                newToken.getImageFileName());
-                        Utils.copy(newTokenImage, newTokenImageDestination);
-                        newToken.setImage(Uri.fromFile(newTokenImageDestination));
-                    }
                     tokenPersistence.add(newToken);
                 }
             }
@@ -186,32 +175,15 @@ public class BackupManager {
         src = application.getDbStorageFile();
         dst = new File(application.getBackupFolder(), src.getName());
         Utils.copy(src, dst);
-
-        File[] images = application.getImageFolder().listFiles();
-        for (File image: images){
-            src = image;
-            dst = new File(application.getBackupFolder(), src.getName());
-            Utils.copy(src, dst);
-        }
     }
 
     private static void restoreFallbackBackup(FreeOTPApplication application) throws IOException {
-        Utils.clearFolder(application.getImageFolder(), 0);
         File src;
         File dst;
 
         dst = application.getDbStorageFile();
         src = new File(application.getBackupFolder(), dst.getName());
         Utils.copy(src, dst);
-
-        File[] images = application.getBackupFolder().listFiles();
-        for (File image: images){
-            if (image.getName().compareTo(application.getDbStorageFile().getName()) != 0){//- Isn't sharedpreference file.
-                src = image;
-                dst = new File(application.getImageFolder(), src.getName());
-                Utils.copy(src, dst);
-            }
-        }
 
         Utils.clearFolder(application.getBackupFolder(), 0);
     }

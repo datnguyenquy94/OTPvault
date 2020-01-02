@@ -261,11 +261,12 @@ public class Token {
         this.label = label;
     }
 
-    public void setImage(Uri image) {
-        if (image == null)
-            this.image = null;
-        else
-            this.image = image.toString();
+    public void setImage(String image) {
+        this.image = image;
+//        if (image == null)
+//            this.image = null;
+//        else
+//            this.image = image.toString();
     }
 
     public void setCounter(long counter) {
@@ -294,10 +295,14 @@ public class Token {
     public String getType() {
         return type;
     }
-    public Uri getImage() {
+    public String getImage() {
         if (image != null && !image.isEmpty())
-            return Uri.parse(image);
-        return null;
+            return this.image;
+        else
+            return null;
+//        if (image != null && !image.isEmpty())
+//            return Uri.parse(image);
+//        return null;
     }
     public long getCounter() {
         return counter;
@@ -382,15 +387,15 @@ public class Token {
     //- Return token image filename.
     //- Token's image can be exist or not.
     //- But if it is, then this is the name of it.
-    public String getImageFileName(){
-        String fileName;
-        if (issuer != null && !issuer.equals(""))
-            fileName = issuer+ ":" + label;
-        else
-            fileName = label;
-
-        return Constants.TOKEN_PREFIX_ID + fileName + ".png";
-    }
+//    public String getImageFileName(){
+//        String fileName;
+//        if (issuer != null && !issuer.equals(""))
+//            fileName = issuer+ ":" + label;
+//        else
+//            fileName = label;
+//
+//        return Constants.TOKEN_PREFIX_ID + fileName + ".png";
+//    }
 
     @Override
     public boolean equals(@Nullable Object obj) {

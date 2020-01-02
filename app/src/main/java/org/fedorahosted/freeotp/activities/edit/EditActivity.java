@@ -56,17 +56,25 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
     private Button             mSave;
 
     private String mIssuerCurrent;
-    private String mIssuerDefault;
     private String mLabelCurrent;
+
+    private String mIssuerDefault;
     private String mLabelDefault;
-    private Uri mImageCurrent;
-    private Uri mImageDefault;
-    private Uri mImageDisplay;
+
+    private String mBase64ImageDefault;//- Defalut from app's storage. Data been converted to base64
+    private Uri mNewImage = null;//- New data from user. (URI)
+
     private Token token;
     private final int REQUEST_IMAGE_OPEN = 1;
 
+    private void discardAndShowDefaultImage(String base64) {
+        mNewImage = null;
+        Utils.base64String2ImageView(base64, mImage);
+        onTextChanged(null, 0, 0, 0);
+    }
+
     private void showImage(Uri uri) {
-        mImageDisplay = uri;
+        mNewImage = uri;
         onTextChanged(null, 0, 0, 0);
         Picasso.with(this)
                 .load(uri)
@@ -75,11 +83,8 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 .into(mImage);
     }
 
-    private boolean imageIs(Uri uri) {
-        if (uri == null)
-            return mImageDisplay == null;
-
-        return uri.equals(mImageDisplay);
+    private boolean isImageModified() {
+        return mNewImage != null;
     }
 
     @Override
@@ -98,10 +103,10 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 .getTokenPersistence().get(mTokenId);
         mIssuerCurrent = token.getIssuer();
         mLabelCurrent = token.getLabel();
-        mImageCurrent = token.getImage();
+
         mIssuerDefault = token.getIssuer();
         mLabelDefault = token.getLabel();
-        mImageDefault = token.getImage();
+        mBase64ImageDefault = token.getImage();
 
         // Get references to widgets.
         mIssuer = findViewById(R.id.issuer);
@@ -121,7 +126,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
         mImage.setOnClickListener(this);
 
         // Setup initial state.
-        showImage(mImageCurrent);
+        discardAndShowDefaultImage(mBase64ImageDefault);
         mLabel.setText(mLabelCurrent);
         mIssuer.setText(mIssuerCurrent);
         mIssuer.setSelection(mIssuer.getText().length());
@@ -153,8 +158,8 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         String label = mLabel.getText().toString();
         String issuer = mIssuer.getText().toString();
-        mSave.setEnabled(!label.equals(mLabelCurrent) || !issuer.equals(mIssuerCurrent) || !imageIs(mImageCurrent));
-        mRestore.setEnabled(!label.equals(mLabelDefault) || !issuer.equals(mIssuerDefault) || !imageIs(mImageDefault));
+        mSave.setEnabled(!label.equals(mLabelCurrent) || !issuer.equals(mIssuerCurrent) || isImageModified());
+        mRestore.setEnabled(!label.equals(mLabelDefault) || !issuer.equals(mIssuerDefault) || isImageModified());
     }
 
     @Override
@@ -176,7 +181,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 mLabel.setText(mLabelDefault);
                 mIssuer.setText(mIssuerDefault);
                 mIssuer.setSelection(mIssuer.getText().length());
-                showImage(mImageDefault);
+                discardAndShowDefaultImage(mBase64ImageDefault);
                 break;
 
             case R.id.save:
@@ -185,8 +190,8 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 Token token = tokenPersistence.get(mTokenId);
                 token.setIssuer(mIssuer.getText().toString());
                 token.setLabel(mLabel.getText().toString());
-                if (token.getImage() == null || token.getImage().compareTo(mImageDisplay) != 0)
-                    token.setImage(mImageDisplay);
+                if (mNewImage != null)
+                    token.setImage(mNewImage.toString());
                 TokenPersistence.updateAsync(application,
                         mTokenId,
                         token,

@@ -151,11 +151,9 @@ public class TokenPersistence {
                                    final long tokenIndex,
                                    final Token editedToken,
                                    final Callback callback) {
-        File outFile = null;
+
         FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
-        if(editedToken.getImage() != null)
-            outFile = new File(application.getImageFolder(), editedToken.getImageFileName());
-        new TokenAsyncTask(application, outFile, editedToken){
+        new TokenAsyncTask(application, editedToken){
             @Override
             protected void onPostExecute(ReturnParams returnParams) {
                 super.onPostExecute(returnParams);
@@ -183,11 +181,8 @@ public class TokenPersistence {
     public static void addAsync(Context context,
                                 final Token token,
                                 final Callback callback) {
-        File outFile = null;
         FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
-        if(token.getImage() != null)
-            outFile = new File(application.getImageFolder(), token.getImageFileName());
-        new TokenAsyncTask(application, outFile, token){
+        new TokenAsyncTask(application, token){
             @Override
             protected void onPostExecute(ReturnParams returnParams) {
                 super.onPostExecute(returnParams);
@@ -235,21 +230,18 @@ public class TokenPersistence {
     private static abstract class TokenAsyncTask extends AsyncTask<Void, Void, ReturnParams> {
 
         private FreeOTPApplication application;
-        private File imageOutput;
         private Token token;
 
-        public TokenAsyncTask(FreeOTPApplication application, File imageOutput, Token token){
+        public TokenAsyncTask(FreeOTPApplication application, Token token){
             this.application = application;
-            this.imageOutput = imageOutput;
             this.token = token;
         }
 
         @Override
         protected ReturnParams doInBackground(Void... voids) {
             if(this.token.getImage() != null) {
-                this.token = Utils.copyImageToStorage(this.application,
-                        this.token,
-                        this.imageOutput);
+                this.token = Utils.image2Base64(this.application,
+                        this.token);
             }
             return new ReturnParams(this.token, this.application);
         }

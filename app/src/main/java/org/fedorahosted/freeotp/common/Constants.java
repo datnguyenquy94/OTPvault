@@ -61,4 +61,8 @@ public class Constants {
 
     //- A prefix be added to importToken's label. If its conflict with another tokens already exist on app's data.
     public static final String CONFLICT_PREFIX = ".conflict";
+
+
+    //- A prefix base64 tag help to determine if a string is base64 or not.
+    public static final String PREFIX_BASE64_TAG = "BASE64|";
 }

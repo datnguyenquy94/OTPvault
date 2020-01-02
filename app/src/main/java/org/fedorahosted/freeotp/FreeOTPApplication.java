@@ -57,7 +57,6 @@ public class FreeOTPApplication extends Application implements LifecycleObserver
     private boolean                     isAppOnForeground = false;
     private long                        lastTimeInteraction = 0;
     private String                      currentActivityClassName = "";
-    private File                        imageFolder;
     private File                        backupFolder;
     private File                        tmpFolder;
     private File                        databaseFolder;
@@ -70,11 +69,9 @@ public class FreeOTPApplication extends Application implements LifecycleObserver
         this.settingsPreference = PreferenceManager.getDefaultSharedPreferences(this);
         this.gson = new Gson();
 
-        this.imageFolder = new File(this.getFilesDir(), Constants.IMAGE_FOLDER);
         this.backupFolder = new File(this.getFilesDir(), Constants.BACKUP_FOLDER);
         this.tmpFolder = new File(this.getFilesDir(), Constants.TMP_FOLDER);
         this.databaseFolder = new File(this.getFilesDir(), Constants.DATABASE_FOLDER);
-        this.imageFolder.mkdirs();
         this.backupFolder.mkdirs();
         this.tmpFolder.mkdirs();
         this.databaseFolder.mkdirs();
@@ -425,10 +422,6 @@ public class FreeOTPApplication extends Application implements LifecycleObserver
 
     public String getCurrentActivityClassName(){
         return this.currentActivityClassName;
-    }
-
-    public File getImageFolder() {
-        return imageFolder;
     }
 
     public File getBackupFolder() {

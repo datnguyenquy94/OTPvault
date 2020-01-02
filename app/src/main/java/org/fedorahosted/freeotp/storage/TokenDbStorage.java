@@ -208,7 +208,7 @@ public class TokenDbStorage {
 //            values.put(Token.TokenEntry.COLUMN_NAME_ID, newToken.getId());
 
             if (newToken.getImage() != null)
-                values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, newToken.getImage().toString());
+                values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, newToken.getImage());
             else
                 values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, "");
 
@@ -239,7 +239,7 @@ public class TokenDbStorage {
 //            values.put(Token.TokenEntry.COLUMN_NAME_ID, modifiedToken.getId());
 
             if (modifiedToken.getImage() != null)
-                values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, modifiedToken.getImage().toString());
+                values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, modifiedToken.getImage());
             else
                 values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, "");
 
@@ -271,7 +271,7 @@ public class TokenDbStorage {
 
             if (result < 0)
                 throw new Exception("Unable to delete token.");
-            this.deleteTokenImage(token);
+//            this.deleteTokenImage(token);
         }
     }
 
@@ -395,18 +395,18 @@ public class TokenDbStorage {
     /**
      * delete image, which is attached to the token from storage
      */
-    public void deleteTokenImage(Token token) {
-        Uri imageUri = token.getImage();
-        if (imageUri != null) {
-
-            File image = new File(imageUri.getPath());
-            File imageFolder = this.application.getImageFolder();
-            //- Only delete if image belong to application's imageFolder.
-            if (image.exists() &&
-                    image.getAbsolutePath().indexOf(imageFolder.getAbsolutePath()) == 0){
-                image.delete();
-            }
-        }
-        token.setImage(null);
-    }
+//    public void deleteTokenImage(Token token) {
+//        Uri imageUri = token.getImage();
+//        if (imageUri != null) {
+//
+//            File image = new File(imageUri.getPath());
+//            File imageFolder = this.application.getImageFolder();
+//            //- Only delete if image belong to application's imageFolder.
+//            if (image.exists() &&
+//                    image.getAbsolutePath().indexOf(imageFolder.getAbsolutePath()) == 0){
+//                image.delete();
+//            }
+//        }
+//        token.setImage(null);
+//    }
 }

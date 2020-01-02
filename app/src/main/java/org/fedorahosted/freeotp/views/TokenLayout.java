@@ -37,6 +37,7 @@ import org.fedorahosted.freeotp.FreeOTPApplication;
 import org.fedorahosted.freeotp.R;
 import org.fedorahosted.freeotp.Token;
 import org.fedorahosted.freeotp.TokenCode;
+import org.fedorahosted.freeotp.common.Utils;
 import org.fedorahosted.freeotp.views.ProgressCircle;
 
 public class TokenLayout extends FrameLayout implements View.OnClickListener, Runnable {
@@ -120,12 +121,7 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
         mPlaceholder = new String(placeholder);
 
         // Show the image.
-        Picasso.with(getContext())
-                .load(token.getImage())
-                .memoryPolicy(MemoryPolicy.NO_CACHE)
-                .placeholder(R.mipmap.ic_freeotp_logo_foreground)
-                .fit()
-                .into(mImage);
+        Utils.base64String2ImageView(token.getImage(), mImage);
 
         // Set the labels.
         mLabel.setText(token.getLabel());
