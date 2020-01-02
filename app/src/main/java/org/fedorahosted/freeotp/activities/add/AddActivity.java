@@ -107,7 +107,8 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
                             mDigits.getText().toString(),
                             mAlgorithm.getSelectedItem().toString()
                     ));
-                    token.setImage(mImageDisplay.toString());
+                    if (mImageDisplay!= null)
+                        token.setImage(mImageDisplay.toString());
                     TokenPersistence.addAsync(this.application,
                             token,
                             new Callback() {
