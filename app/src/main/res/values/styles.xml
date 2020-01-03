@@ -43,7 +43,7 @@
 
 
 
-    <!--Pronhub-->
+    <!--Promhub-->
     <color name="pronHubColorPrimary">#ffa31a</color>
     <color name="pronHubColorSecondary">#808080</color>
     <color name="pronHubColorTertiary">#ffffff</color>
@@ -56,6 +56,7 @@
     <color name="lightColorTertiary">#ffffff</color>
     <color name="lightColorPrimaryDark">#fffafafa</color>
     <color name="lightColorSecondaryDark">#ffe0e0e0</color>
+    <color name="lightColorTertiaryDark">#ffd0d0d0</color>
 
     <!--Dark-->
     <color name="darkColorPrimary">#ffffff</color>
@@ -63,6 +64,7 @@
     <color name="darkColorTertiary">#808080</color>
     <color name="darkColorPrimaryDark">#1b1b1b</color>
     <color name="darkColorSecondaryDark">#292929</color>
+    <color name="darkColorTertiaryDark">#393939</color>
 
     <!--<style name="TestTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">-->
     <style name="Light" parent="Theme.AppCompat.Light">
@@ -71,6 +73,7 @@
         <item name="colorSchemeTertiary">@color/lightColorTertiary</item>
         <item name="colorSchemeBackgroundPrimary">@color/lightColorPrimaryDark</item>
         <item name="colorSchemeBackgroundSecondary">@color/lightColorSecondaryDark</item>
+        <item name="colorSchemeBackgroundTertiary">@color/lightColorTertiaryDark</item>
     </style>
 
     <style name="Light.Dialog" parent="Light">
@@ -95,14 +98,13 @@
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
 
-    <style name="Dark" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+    <style name="Dark" parent="Theme.MaterialComponents">
         <item name="colorSchemePrimary">@color/darkColorPrimary</item>
         <item name="colorSchemeSecondary">@color/darkColorSecondary</item>
         <item name="colorSchemeTertiary">@color/darkColorTertiary</item>
         <item name="colorSchemeBackgroundPrimary">@color/darkColorPrimaryDark</item>
         <item name="colorSchemeBackgroundSecondary">@color/darkColorSecondaryDark</item>
-
-        <item name="android:background">@color/darkColorSecondaryDark</item>
+        <item name="colorSchemeBackgroundTertiary">@color/darkColorTertiaryDark</item>
     </style>
 
     <style name="Dark.Dialog" parent="Dark">
@@ -127,18 +129,14 @@
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
 
-    <!--<style name="TestTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">-->
-    <style name="TestThemePron" parent="Theme.Design.Light">
-
+    <style name="PromhubTestTheme" parent="Theme.Design.Light">
         <item name="colorSchemePrimary">@color/pronHubColorPrimary</item>
         <item name="colorSchemeSecondary">@color/pronHubColorSecondary</item>
         <item name="colorSchemeTertiary">@color/pronHubColorTertiary</item>
         <item name="colorSchemeBackgroundPrimary">@color/pronHubColorPrimaryDark</item>
         <item name="colorSchemeBackgroundSecondary">@color/pronHubColorSecondaryDark</item>
-
         <!--status bar text color-->
         <item name="android:background">@color/pronHubColorPrimaryDark</item>
-
         <!--<item name="android:action">#ff0000</item>-->
         <item name="android:textColor">@color/pronHubColorPrimary</item>
         <item name="android:textColorSecondary">@color/pronHubColorPrimary</item>
@@ -147,19 +145,7 @@
         <item name="android:editTextColor">@color/pronHubColorPrimary</item>
         <!--Edit Text Focus Under Line Color-->
         <item name="android:colorControlActivated">@color/pronHubColorPrimary</item>
-
         <item name="actionMenuTextAppearance">@style/TextAppearance.AppCompat.Widget.ActionBar.Menu</item>
         <item name="android:actionMenuTextColor">@color/pronHubColorPrimary</item>
-    </style>
-
-
-    <color name="white">#ffffff</color>
-    <color name="black">#000000</color>
-    <style name="TestThemeWhite" parent="Theme.AppCompat.Dialog">
-        <item name="colorSchemePrimary">@color/white</item>
-        <item name="colorSchemeSecondary">@color/white</item>
-        <item name="colorSchemeTertiary">@color/white</item>
-        <item name="colorSchemeBackgroundPrimary">@color/black</item>
-        <item name="colorSchemeBackgroundSecondary">@color/black</item>
     </style>
 </resources>

@@ -6,6 +6,7 @@ dependencies {
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'io.fotoapparat.fotoapparat:library:1.4.1'
     implementation 'com.github.hedzr:android-file-chooser:v1.2.0-final'
+    implementation 'com.google.android.material:material:1.0.0'
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "androidx.preference:preference:1.1.0"
