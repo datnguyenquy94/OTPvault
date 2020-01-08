@@ -1,11 +1,10 @@
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -17,15 +16,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import org.fedorahosted.freeotp.BackupManager;
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.views.ProgressDialogBuilder;
+import org.ngyuen.otpvault.BackupManager;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Constants;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.views.ProgressDialogBuilder;
 
 import java.lang.ref.WeakReference;
 
@@ -175,7 +173,7 @@ public class ChangePasswordActivity extends AbstractActivity implements TextWatc
     public static class ChangePasswordAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
         private WeakReference<Activity> activityRef;
-        private FreeOTPApplication application;
+        private OTPVaultApplication application;
         private Callback callback;
         private AlertDialog dialog;
 
@@ -186,7 +184,7 @@ public class ChangePasswordActivity extends AbstractActivity implements TextWatc
 
         public ChangePasswordAsyncTask(Activity activity, String currentPassword, String newPassword, boolean isBackupBeforeChange, Callback callback){
             this.activityRef = new WeakReference<>(activity);
-            this.application = (FreeOTPApplication) activity.getApplicationContext();
+            this.application = (OTPVaultApplication) activity.getApplicationContext();
             this.currentPassword = currentPassword;
             this.newPassword = newPassword;
             this.isBackupBeforeChange = isBackupBeforeChange;
@@ -207,7 +205,7 @@ public class ChangePasswordActivity extends AbstractActivity implements TextWatc
                 Thread.sleep(1000);
                 boolean result;
                 if (this.isBackupBeforeChange){
-                    result = BackupManager.backup((FreeOTPApplication) this.activityRef.get().getApplication(),
+                    result = BackupManager.backup((OTPVaultApplication) this.activityRef.get().getApplication(),
                             Constants.BEFORE_CHANGE_PASSWORD_BACKUP_SUFFIX_NAME);
                     if (!result)
                         throw new Exception("Unable to backup data before chanage password.");

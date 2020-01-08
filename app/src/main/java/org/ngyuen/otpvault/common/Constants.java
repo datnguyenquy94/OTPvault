@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp.common;
+package org.ngyuen.otpvault.common;
 
 public class Constants {
 

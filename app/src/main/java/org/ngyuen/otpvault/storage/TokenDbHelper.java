@@ -1,17 +1,15 @@
-package org.fedorahosted.freeotp.storage;
+package org.ngyuen.otpvault.storage;
 
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.database.DatabaseErrorHandler;
-import android.os.Environment;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.common.Constants;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.common.Constants;
 
 import java.io.File;
 
@@ -65,10 +63,10 @@ public class TokenDbHelper extends SQLiteOpenHelper {
 
     private static class DatabaseContext extends ContextWrapper {
         private static final String LOG_TAG = DatabaseContext.class.getName();
-        private FreeOTPApplication application;
+        private OTPVaultApplication application;
         public DatabaseContext(Context base) {
             super(base);
-            this.application = (FreeOTPApplication) this.getApplicationContext();
+            this.application = (OTPVaultApplication) this.getApplicationContext();
         }
         @Override
         public File getDatabasePath(String name)  {

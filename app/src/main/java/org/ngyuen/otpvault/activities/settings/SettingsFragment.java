@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp.activities.settings;
+package org.ngyuen.otpvault.activities.settings;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -8,7 +8,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
 
-import org.fedorahosted.freeotp.R;
+import org.ngyuen.otpvault.R;
 
 @SuppressLint("ApplySharedPref")
 public class SettingsFragment extends PreferenceFragmentCompat implements

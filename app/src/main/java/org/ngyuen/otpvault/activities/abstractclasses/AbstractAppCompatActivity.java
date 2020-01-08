@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp.activities.abstractclasses;
+package org.ngyuen.otpvault.activities.abstractclasses;
 
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -6,16 +6,16 @@ import android.view.MotionEvent;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
+import org.ngyuen.otpvault.OTPVaultApplication;
 
 public class AbstractAppCompatActivity extends AppCompatActivity {
 
-    protected FreeOTPApplication application;
+    protected OTPVaultApplication application;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.application = (FreeOTPApplication) this.getApplication();
+        this.application = (OTPVaultApplication) this.getApplication();
         this.application.updateLastTimeInteraction();
     }
 

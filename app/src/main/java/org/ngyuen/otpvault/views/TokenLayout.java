@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.views;
+package org.ngyuen.otpvault.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -30,18 +30,14 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.Picasso;
-
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.TokenCode;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.views.ProgressCircle;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.TokenCode;
+import org.ngyuen.otpvault.common.Utils;
 
 public class TokenLayout extends FrameLayout implements View.OnClickListener, Runnable {
-    private FreeOTPApplication application;
+    private OTPVaultApplication application;
     private ProgressCircle mProgressInner;
     private ProgressCircle mProgressOuter;
     private ImageView mImage;
@@ -58,17 +54,17 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
 
     public TokenLayout(Context context) {
         super(context);
-        this.application = (FreeOTPApplication) context.getApplicationContext();
+        this.application = (OTPVaultApplication) context.getApplicationContext();
     }
 
     public TokenLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        this.application = (FreeOTPApplication) context.getApplicationContext();
+        this.application = (OTPVaultApplication) context.getApplicationContext();
     }
 
     public TokenLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.application = (FreeOTPApplication) context.getApplicationContext();
+        this.application = (OTPVaultApplication) context.getApplicationContext();
     }
 
     @Override

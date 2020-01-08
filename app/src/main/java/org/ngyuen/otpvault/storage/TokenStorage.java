@@ -1,4 +1,4 @@
-//package org.fedorahosted.freeotp.storage;
+//package org.ngyuen.otpvault.storage;
 //
 //import android.annotation.SuppressLint;
 //import android.content.SharedPreferences;
@@ -7,9 +7,9 @@
 //import com.google.gson.Gson;
 //import com.google.gson.JsonSyntaxException;
 //
-//import org.fedorahosted.freeotp.common.Constants;
-//import org.fedorahosted.freeotp.FreeOTPApplication;
-//import org.fedorahosted.freeotp.Token;
+//import org.ngyuen.otpvault.common.Constants;
+//import org.ngyuen.otpvault.OTPVaultApplication;
+//import org.ngyuen.otpvault.Token;
 //
 //import java.io.File;
 //import java.nio.file.Files;
@@ -20,11 +20,11 @@
 //
 //@SuppressLint("ApplySharedPref")
 //public class TokenStorage {
-//    private FreeOTPApplication application;
+//    private OTPVaultApplication application;
 //    private Gson gson;
 //    private List<String> tokenIndex = null;//- Array of labels.
 //
-//    public TokenStorage(FreeOTPApplication application, Gson gson){
+//    public TokenStorage(OTPVaultApplication application, Gson gson){
 //        this.application = application;
 //        this.gson = gson;
 //        this.loadTokenIndex();

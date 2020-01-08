@@ -1,23 +1,20 @@
-package org.fedorahosted.freeotp.common;
+package org.ngyuen.otpvault.common;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Base64;
-import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -130,7 +127,7 @@ public class Utils {
 //            return null;
 //
 //        try {
-//            FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+//            OTPVaultApplication application = (OTPVaultApplication) context.getApplicationContext();
 //
 //            File temporaryFile = new File(application.getTmpFolder(), "temporaryFile.jpg");
 //

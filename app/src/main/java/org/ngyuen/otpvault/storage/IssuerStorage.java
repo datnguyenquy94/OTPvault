@@ -1,11 +1,11 @@
-//package org.fedorahosted.freeotp.storage;
+//package org.ngyuen.otpvault.storage;
 //
 //import android.content.SharedPreferences;
 //
 //import com.google.gson.Gson;
 //
-//import org.fedorahosted.freeotp.common.Constants;
-//import org.fedorahosted.freeotp.FreeOTPApplication;
+//import org.ngyuen.otpvault.common.Constants;
+//import org.ngyuen.otpvault.OTPVaultApplication;
 //
 //import java.util.ArrayList;
 //import java.util.Arrays;
@@ -13,10 +13,10 @@
 //import java.util.List;
 //
 //public class IssuerStorage {
-//    private FreeOTPApplication application;
+//    private OTPVaultApplication application;
 //    private List<String> issuers = null;//- Array of labels.
 //
-//    public IssuerStorage(FreeOTPApplication application, Gson gson){
+//    public IssuerStorage(OTPVaultApplication application, Gson gson){
 //        this.application = application;
 //        this.loadIssuers();
 //    }

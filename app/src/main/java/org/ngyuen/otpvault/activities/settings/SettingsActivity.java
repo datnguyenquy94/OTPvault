@@ -1,29 +1,25 @@
-package org.fedorahosted.freeotp.activities.settings;
+package org.ngyuen.otpvault.activities.settings;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
-import org.fedorahosted.freeotp.BackupManager;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.activities.ChangePasswordActivity;
-import org.fedorahosted.freeotp.activities.ImportActivity;
-import org.fedorahosted.freeotp.activities.LoginActivity;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractAppCompatActivity;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.BackupManager;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.activities.ChangePasswordActivity;
+import org.ngyuen.otpvault.activities.ImportActivity;
+import org.ngyuen.otpvault.activities.LoginActivity;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractAppCompatActivity;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Utils;
 
 import java.io.File;
 

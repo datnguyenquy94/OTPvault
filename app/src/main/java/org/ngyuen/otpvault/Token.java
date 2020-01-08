@@ -18,9 +18,8 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.ngyuen.otpvault;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,10 +29,7 @@ import java.util.Locale;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import android.app.Application;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.BaseColumns;
 
 import androidx.annotation.Nullable;
@@ -41,11 +37,12 @@ import androidx.annotation.Nullable;
 import com.google.android.apps.authenticator.Base32String;
 import com.google.android.apps.authenticator.Base32String.DecodingException;
 
-import org.fedorahosted.freeotp.common.Constants;
-
 public class Token {
     public static class TokenUriInvalidException extends Exception {
         private static final long serialVersionUID = -1108624734612362345L;
+        private String errorMessage;
+        public TokenUriInvalidException(String errorMessage){ this.errorMessage = errorMessage; }
+        public String getMessage(){ return this.errorMessage; }
     }
 
 //    public static enum TokenType2 {
@@ -97,7 +94,7 @@ public class Token {
         path = path.replaceFirst("/","");
 
         if (path.length() == 0)
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException( "Bad input");
 
         int i = path.indexOf(':');
         issuer = i < 0 ? "" : path.substring(0, i);
@@ -112,7 +109,7 @@ public class Token {
         try {
             Mac.getInstance("Hmac" + algo);
         } catch (NoSuchAlgorithmException e1) {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Algorithm input is not support. ["+algo+"]");
         }
 
         try {
@@ -121,9 +118,9 @@ public class Token {
                 d = "6";
             digits = Integer.parseInt(d);
             if (!issuer.equals("Steam") && digits != 6 && digits != 8)
-                throw new TokenUriInvalidException();
+                throw new TokenUriInvalidException("Bad digits input");
         } catch (NumberFormatException e) {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad digits input");
         }
 
         try {
@@ -133,7 +130,7 @@ public class Token {
             period = Integer.parseInt(p);
             period = (period > 0) ? period : 30; // Avoid divide-by-zero
         } catch (NumberFormatException e) {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad period input");
         }
 
         if (TokenType.HOTP.compareTo(type) == 0) {
@@ -143,17 +140,19 @@ public class Token {
                     c = "0";
                 counter = Long.parseLong(c);
             } catch (NumberFormatException e) {
-                throw new TokenUriInvalidException();
+                throw new TokenUriInvalidException("Bad counter input");
             }
         }
 
         try {
             String s = uri.getQueryParameter("secret");
             secret = Base32String.decode(s);
+            if (secret.length < 16)//- secret length must be at least 128bit
+                throw new TokenUriInvalidException("Bad secret input. Secret length must be at least 128bits. Current="+secret.length*8+"bits");
         } catch (DecodingException e) {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad secret input");
         } catch (NullPointerException e) {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad secret input");
         }
 
         image = uri.getQueryParameter("image");
@@ -165,23 +164,23 @@ public class Token {
     }
 
     private void validateTokenURI(Uri uri) throws TokenUriInvalidException{
-        if (uri == null) throw new TokenUriInvalidException();
+        if (uri == null) throw new TokenUriInvalidException("Bad input");
 
         if (uri.getScheme() == null || !uri.getScheme().equals("otpauth")){
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad input");
         }
 
-        if (uri.getAuthority() == null) throw new TokenUriInvalidException();
+        if (uri.getAuthority() == null) throw new TokenUriInvalidException("Bad input");
 
         if (uri.getAuthority().equals("totp")) {
             type = TokenType.TOTP;
         } else if (uri.getAuthority().equals("hotp"))
             type = TokenType.HOTP;
         else {
-            throw new TokenUriInvalidException();
+            throw new TokenUriInvalidException("Bad input");
         }
 
-        if (uri.getPath() == null) throw new TokenUriInvalidException();
+        if (uri.getPath() == null) throw new TokenUriInvalidException("Bad input");
     }
 
     private String getHOTP(long counter) {
@@ -204,7 +203,7 @@ public class Token {
 
             // Truncate
             int binary;
-            int off = digest[digest.length - 1] & 0xf;
+            int off = digest[digest.length - 1] & 0xf;//- digest[digest.length - 1] % 16
             binary = (digest[off] & 0x7f) << 0x18;
             binary |= (digest[off + 1] & 0xff) << 0x10;
             binary |= (digest[off + 2] & 0xff) << 0x08;

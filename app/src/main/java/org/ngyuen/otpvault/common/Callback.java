@@ -1,6 +1,4 @@
-package org.fedorahosted.freeotp.common;
-
-import org.fedorahosted.freeotp.Token;
+package org.ngyuen.otpvault.common;
 
 public interface Callback {
 

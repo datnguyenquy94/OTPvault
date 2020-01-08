@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp;
+package org.ngyuen.otpvault;
 
 public class TokenCode {
     private final String mCode;

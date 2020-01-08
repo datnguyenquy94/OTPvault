@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,18 +10,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.common.Utils;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
 
@@ -30,14 +28,14 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private ImageButton focusPasswordNumberOnlyButton;
     private ImageButton focusPasswordTextOnlyButton;
 
-    private FreeOTPApplication application;
+    private OTPVaultApplication application;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Utils.setTheme(this, false);
         this.setContentView(R.layout.login);
-        this.application = (FreeOTPApplication) this.getApplication();
+        this.application = (OTPVaultApplication) this.getApplication();
 
         this.showPasswordCheckBox = this.findViewById(R.id.showPasswordCheckBox);
         this.focusPasswordNumberOnlyButton = this.findViewById(R.id.focusPasswordNumberOnlyButton);

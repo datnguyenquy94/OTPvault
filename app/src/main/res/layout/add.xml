@@ -221,7 +221,7 @@
 
         <Button
             android:id="@+id/test_passcode"
-            style="@android:style/Widget.Holo.Light.Button.Borderless.Small"
+            style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:visibility="gone"
@@ -231,15 +231,30 @@
 
     <View style="@style/Divider" />
 
-    <LinearLayout style="@style/Dialog.Button.Layout">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        android:divider="?android:dividerHorizontal"
+        android:showDividers="middle">
+
         <Button
             android:id="@+id/cancel"
-            style="@style/Dialog.Button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_weight="1"
             android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/add"
-            style="@style/Dialog.Button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_weight="1"
             android:enabled="false"
             android:text="@string/add" />
     </LinearLayout>

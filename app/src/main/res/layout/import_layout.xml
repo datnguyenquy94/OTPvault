@@ -50,7 +50,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
                         android:layout_weight="1"
-                        android:text="2019-10-10 15:11:14.516 23355-23355/org.fedorahosted.freeotp D/org.fedorahosted.freeotp.activities.settings.SettingsActivity:/document/primary:backup_otp.zip"/>
+                        android:text="2019-10-10 15:11:14.516 23355-23355/org.ngyuen.otpvault D/org.ngyuen.otpvault.activities.settings.SettingsActivity:/document/primary:backup_otp.zip"/>
 
                 </TableRow>
                 <TableRow>
@@ -79,15 +79,29 @@
 
     <View style="@style/Divider" />
 
-    <LinearLayout style="@style/Dialog.Button.Layout">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        android:divider="?android:dividerHorizontal"
+        android:showDividers="middle">
         <Button
             android:id="@+id/cancel"
-            style="@style/Dialog.Button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_weight="1"
             android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/importButton"
-            style="@style/Dialog.Button"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_weight="1"
             android:enabled="false"
             android:text="@string/import_text" />
     </LinearLayout>

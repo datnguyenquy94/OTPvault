@@ -1,4 +1,4 @@
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,21 +8,15 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
-import org.fedorahosted.freeotp.BackupManager;
-import org.fedorahosted.freeotp.BuildConfig;
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.activities.edit.DeleteActivity;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.BackupManager;
+import org.ngyuen.otpvault.BuildConfig;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Utils;
 
 import java.io.File;
 

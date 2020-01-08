@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FreeOTP</string>
+    <string name="app_name">OTPvault</string>
     <string name="invalid_token">The token specified was invalid!</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
@@ -40,7 +40,7 @@
     <string name="delete_question">Delete this token?</string>
 
     <string-array name="algorithms">
-        <item>MD5</item>
+        <!--<item>MD5</item> MD5 Only generate 128bit hash.-->
         <item>SHA1</item>
         <item>SHA256</item>
         <item>SHA512</item>
@@ -64,4 +64,16 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <string name="tutorial_welcome_message">Welcome to OTPvault, OTPvault provider a safe way to store and protect your 2FA data. We going to guide you through the initial setup. Click \'Next\' to move to the next step.</string>
+    <string name="tutorial_message_permissions_required">In order for backup and import features work properly, permission to READ/WRITE external storage is required.</string>
+    <string name="tutorial_message_theme_setup">OTPvault support more multi-themes. Select one you would like to use and click \'Next\'. You can change theme later in Settings.</string>
+    <string name="tutorial_message_password_setup">To keep your data safe. OTPvault going to use your password to encrypt your data. The password\'s length minimum is 8 characters. Choose wisely you will not able to recover your data without it. You can change your password later in Setting.</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="password_label">Password:</string>
+    <string name="repeat_your_password_label">Repeat your password:</string>
+    <string name="done_upcase">DONE</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>

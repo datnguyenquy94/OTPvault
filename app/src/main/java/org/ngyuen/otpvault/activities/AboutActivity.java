@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -28,9 +28,9 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Utils;
 
 public class AboutActivity extends AbstractActivity {
     @Override

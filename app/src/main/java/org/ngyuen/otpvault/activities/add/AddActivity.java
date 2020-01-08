@@ -1,9 +1,8 @@
-package org.fedorahosted.freeotp.activities.add;
+package org.ngyuen.otpvault.activities.add;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telecom.Call;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -18,12 +17,12 @@ import android.widget.Toast;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.storage.TokenPersistence;
+import org.ngyuen.otpvault.common.Utils;
 
 public class AddActivity extends AbstractActivity implements TextWatcher, View.OnClickListener, AdapterView.OnItemSelectedListener {
     private EditText            mIssuer;
@@ -121,7 +120,8 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
                             });
                     break;
 
-                } catch(Exception e){
+                } catch(Token.TokenUriInvalidException e){
+                    Toast.makeText(this, "Add new token failed. Reason: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
 
@@ -143,6 +143,7 @@ public class AddActivity extends AbstractActivity implements TextWatcher, View.O
                         mTestPasscode.setText(output);
                     }
                 } catch (Token.TokenUriInvalidException e) {
+                    Toast.makeText(this, "Generate passcode failed. Reason: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
                 break;

@@ -18,18 +18,18 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.activities.edit;
+package org.ngyuen.otpvault.activities.edit;
 
 import android.widget.Toast;
 
-import org.fedorahosted.freeotp.BuildConfig;
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
+import org.ngyuen.otpvault.BuildConfig;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.storage.TokenPersistence;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -99,7 +99,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
             throw new RuntimeException("Could not create Activity");
 
         // Get token values.
-        token = ((FreeOTPApplication)this.getApplicationContext())
+        token = ((OTPVaultApplication)this.getApplicationContext())
                 .getTokenPersistence().get(mTokenId);
         mIssuerCurrent = token.getIssuer();
         mLabelCurrent = token.getLabel();
@@ -185,7 +185,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 break;
 
             case R.id.save:
-                TokenPersistence tokenPersistence = ((FreeOTPApplication)this.getApplicationContext())
+                TokenPersistence tokenPersistence = ((OTPVaultApplication)this.getApplicationContext())
                         .getTokenPersistence();;
                 Token token = tokenPersistence.get(mTokenId);
                 token.setIssuer(mIssuer.getText().toString());

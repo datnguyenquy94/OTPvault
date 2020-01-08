@@ -1,36 +1,28 @@
-package org.fedorahosted.freeotp.storage;
+package org.ngyuen.otpvault.storage;
 
 import android.content.ContentValues;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.Token;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TokenDbStorage {
     private static final String LOG_TAG = TokenDbStorage.class.getName();
-    private FreeOTPApplication application;
+    private OTPVaultApplication application;
     private Gson gson;
 
-    public TokenDbStorage(FreeOTPApplication application){
+    public TokenDbStorage(OTPVaultApplication application){
         this.application = application;
         this.gson = this.application.getGson();
     }

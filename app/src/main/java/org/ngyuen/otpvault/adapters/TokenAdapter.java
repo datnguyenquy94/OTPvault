@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.adapters;
+package org.ngyuen.otpvault.adapters;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -33,14 +33,14 @@ import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.TokenCode;
-import org.fedorahosted.freeotp.views.TokenLayout;
-import org.fedorahosted.freeotp.activities.edit.DeleteActivity;
-import org.fedorahosted.freeotp.activities.edit.EditActivity;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.TokenCode;
+import org.ngyuen.otpvault.views.TokenLayout;
+import org.ngyuen.otpvault.activities.edit.DeleteActivity;
+import org.ngyuen.otpvault.activities.edit.EditActivity;
+import org.ngyuen.otpvault.storage.TokenPersistence;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
     private final Map<Long, TokenCode> mTokenCodes;
 
     public TokenAdapter(Context ctx) {
-        mTokenPersistence = ((FreeOTPApplication)ctx.getApplicationContext())
+        mTokenPersistence = ((OTPVaultApplication)ctx.getApplicationContext())
                 .getTokenPersistence();;
         mLayoutInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mClipMan = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -132,14 +132,14 @@ public class TokenAdapter extends BaseReorderableAdapter {
             @Override
             public void onClick(View v) {
                 try {
-                    TokenPersistence tp = ((FreeOTPApplication)ctx.getApplicationContext())
+                    TokenPersistence tp = ((OTPVaultApplication)ctx.getApplicationContext())
                             .getTokenPersistence();;
 
                     // Increment the token.
                     Token token = tp.get(position);
                     TokenCode codes = token.generateCodes();
                     //save token. Image wasn't changed here, so just save it in sync
-                    ((FreeOTPApplication)ctx.getApplicationContext())
+                    ((OTPVaultApplication)ctx.getApplicationContext())
                             .getTokenPersistence().update(token.getId(), token);
 
                     // Copy code to clipboard.

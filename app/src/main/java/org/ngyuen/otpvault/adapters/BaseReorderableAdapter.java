@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.adapters;
+package org.ngyuen.otpvault.adapters;
 
 import android.content.ClipData;
 import android.view.DragEvent;
@@ -29,7 +29,7 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import org.fedorahosted.freeotp.R;
+import org.ngyuen.otpvault.R;
 
 public abstract class BaseReorderableAdapter extends BaseAdapter {
     private class Reference<T> {

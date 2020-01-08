@@ -1,24 +1,19 @@
-package org.fedorahosted.freeotp;
+package org.ngyuen.otpvault;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.telecom.Call;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
-import org.fedorahosted.freeotp.views.ProgressDialogBuilder;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Constants;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.storage.TokenPersistence;
+import org.ngyuen.otpvault.views.ProgressDialogBuilder;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -28,7 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -39,7 +33,7 @@ public class BackupManager {
 
     private static final String LOG_TAG = Utils.class.getName();
 
-    public static boolean backup(FreeOTPApplication application, String outputSuffix){
+    public static boolean backup(OTPVaultApplication application, String outputSuffix){
         if (outputSuffix == null)
             outputSuffix = "";
         boolean backupFileWithTimeStamp = application.getSettingsPreference().getBoolean("backupFileWithTimeStamp", false);
@@ -93,7 +87,7 @@ public class BackupManager {
         }
     }
 
-    private static void importBackup(FreeOTPApplication application, File zipInputFile, String backupPasswd) throws Exception {
+    private static void importBackup(OTPVaultApplication application, File zipInputFile, String backupPasswd) throws Exception {
         try {
             //- Clean work folders before import.====================
             BackupManager.createFallbackBackup(application);
@@ -167,7 +161,7 @@ public class BackupManager {
     }
 
     //- In case backup fail. Use this to restore app to last state.
-    private static void createFallbackBackup(FreeOTPApplication application) throws IOException {
+    private static void createFallbackBackup(OTPVaultApplication application) throws IOException {
         Utils.clearFolder(application.getBackupFolder(), 0);
         File src;
         File dst;
@@ -177,7 +171,7 @@ public class BackupManager {
         Utils.copy(src, dst);
     }
 
-    private static void restoreFallbackBackup(FreeOTPApplication application) throws IOException {
+    private static void restoreFallbackBackup(OTPVaultApplication application) throws IOException {
         File src;
         File dst;
 
@@ -188,7 +182,7 @@ public class BackupManager {
         Utils.clearFolder(application.getBackupFolder(), 0);
     }
 
-    private static void clearFallbackBackup(FreeOTPApplication application){
+    private static void clearFallbackBackup(OTPVaultApplication application){
         Utils.clearFolder(application.getBackupFolder(), 0);
     }
 
@@ -266,7 +260,7 @@ public class BackupManager {
             //- Wait 1s before backup.
             try {
                 Thread.sleep(1000);
-                return BackupManager.backup((FreeOTPApplication) this.activityRef.get().getApplication(),
+                return BackupManager.backup((OTPVaultApplication) this.activityRef.get().getApplication(),
                         Constants.MANUALLY_BACKUP_SUFFIX_NAME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -315,7 +309,7 @@ public class BackupManager {
             //- Wait 1s before backup.
             try {
                 Thread.sleep(1000);
-                BackupManager.importBackup((FreeOTPApplication) this.activityRef.get().getApplication(),
+                BackupManager.importBackup((OTPVaultApplication) this.activityRef.get().getApplication(),
                         this.zipInputFile, this.password);
                 return true;
             } catch (Exception e) {

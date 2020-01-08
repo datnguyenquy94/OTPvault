@@ -19,7 +19,7 @@
    - limitations under the License.
    -->
 
-<org.fedorahosted.freeotp.views.TokenLayout
+<org.ngyuen.otpvault.views.TokenLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:freeotp="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -35,7 +35,7 @@
         android:scaleType="fitCenter"
         />
 
-    <org.fedorahosted.freeotp.views.ProgressCircle
+    <org.ngyuen.otpvault.views.ProgressCircle
         android:id="@+id/progressInner"
         android:layout_width="96dp"
         android:layout_height="96dp"
@@ -45,7 +45,7 @@
         android:background="#00000000"
         />
 
-    <org.fedorahosted.freeotp.views.ProgressCircle
+    <org.ngyuen.otpvault.views.ProgressCircle
         android:id="@+id/progressOuter"
         android:layout_width="96dp"
         android:layout_height="96dp"
@@ -91,4 +91,4 @@
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:src="@drawable/menu" />
-</org.fedorahosted.freeotp.views.TokenLayout>
+</org.ngyuen.otpvault.views.TokenLayout>

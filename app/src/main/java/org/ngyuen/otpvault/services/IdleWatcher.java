@@ -1,17 +1,8 @@
-package org.fedorahosted.freeotp.services;
-
-import android.app.IntentService;
-import android.content.Intent;
-import android.preference.PreferenceManager;
-
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.activities.LoginActivity;
-
-import androidx.annotation.Nullable;
+package org.ngyuen.otpvault.services;
 
 //public class IdleWatcher extends IntentService {
 
-//    private FreeOTPApplication application;
+//    private OTPVaultApplication application;
 //    private static boolean cancel = false;
 //
 //    public static void setCancel(boolean c){
@@ -36,7 +27,7 @@ import androidx.annotation.Nullable;
 //     */
 //    public IdleWatcher() {
 //        super("IdleWatcher");
-//        this.application = (FreeOTPApplication) this.getApplicationContext();
+//        this.application = (OTPVaultApplication) this.getApplicationContext();
 //    }
 //
 //    /**

@@ -1,7 +1,6 @@
-package org.fedorahosted.freeotp.views;
+package org.ngyuen.otpvault.views;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.ViewGroup;

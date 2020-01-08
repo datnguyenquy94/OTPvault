@@ -18,23 +18,20 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.storage;
+package org.ngyuen.otpvault.storage;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
-import com.google.gson.Gson;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.common.Callback;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.activities.MainActivity;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.common.Callback;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.activities.MainActivity;
 
-import java.io.File;
 import java.util.List;
 
 public class TokenPersistence {
@@ -46,7 +43,7 @@ public class TokenPersistence {
     private String issuerFilterParameter = "";
 
     public TokenPersistence(Context ctx) {
-        this.tokenDbStorage = new TokenDbStorage((FreeOTPApplication) ctx.getApplicationContext());
+        this.tokenDbStorage = new TokenDbStorage((OTPVaultApplication) ctx.getApplicationContext());
         this.updateTokenIndex();
     }
 
@@ -152,14 +149,14 @@ public class TokenPersistence {
                                    final Token editedToken,
                                    final Callback callback) {
 
-        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+        OTPVaultApplication application = (OTPVaultApplication) context.getApplicationContext();
         new TokenAsyncTask(application, editedToken){
             @Override
             protected void onPostExecute(ReturnParams returnParams) {
                 super.onPostExecute(returnParams);
                 //we downloaded the image, now save/update it normally
                 try {
-                    Token resultToken = ((FreeOTPApplication)returnParams.context.getApplicationContext())
+                    Token resultToken = ((OTPVaultApplication)returnParams.context.getApplicationContext())
                             .getTokenPersistence().update(tokenIndex, returnParams.getToken());
                     callback.success(resultToken);
                 } catch (Exception e) {
@@ -181,14 +178,14 @@ public class TokenPersistence {
     public static void addAsync(Context context,
                                 final Token token,
                                 final Callback callback) {
-        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+        OTPVaultApplication application = (OTPVaultApplication) context.getApplicationContext();
         new TokenAsyncTask(application, token){
             @Override
             protected void onPostExecute(ReturnParams returnParams) {
                 super.onPostExecute(returnParams);
                 //we downloaded the image, now save/update it normally
                 try {
-                    ((FreeOTPApplication)returnParams.context.getApplicationContext())
+                    ((OTPVaultApplication)returnParams.context.getApplicationContext())
                             .getTokenPersistence().add(returnParams.getToken());
                     callback.success(returnParams.getToken());
                 } catch (Exception e) {
@@ -229,10 +226,10 @@ public class TokenPersistence {
      */
     private static abstract class TokenAsyncTask extends AsyncTask<Void, Void, ReturnParams> {
 
-        private FreeOTPApplication application;
+        private OTPVaultApplication application;
         private Token token;
 
-        public TokenAsyncTask(FreeOTPApplication application, Token token){
+        public TokenAsyncTask(OTPVaultApplication application, Token token){
             this.application = application;
             this.token = token;
         }

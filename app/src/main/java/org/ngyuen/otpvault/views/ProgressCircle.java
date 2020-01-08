@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.views;
+package org.ngyuen.otpvault.views;
 
 import android.content.Context;
 import android.content.res.Resources.Theme;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
@@ -34,8 +33,8 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
 
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.common.Utils;
 
 public class ProgressCircle extends View {
 

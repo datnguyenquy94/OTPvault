@@ -32,7 +32,7 @@ import org.ngyuen.otpvault.storage.TokenPersistence;
 import java.io.File;
 
 @SuppressLint("ApplySharedPref")
-public class FreeOTPApplication extends Application implements LifecycleObserver {
+public class OTPVaultApplication extends Application implements LifecycleObserver {
 
     private static final String GET_PASSWD_SQL = "select passwd from passwd;";
     private static final String[] SAVE_PASSWD_SQL = new String[] {

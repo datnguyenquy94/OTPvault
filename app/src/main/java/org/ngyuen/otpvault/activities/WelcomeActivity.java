@@ -1,12 +1,10 @@
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -19,13 +17,10 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.activities.MainActivity;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
-
-import java.io.File;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.common.Constants;
+import org.ngyuen.otpvault.common.Utils;
 
 public class WelcomeActivity extends Activity implements View.OnClickListener, TextWatcher{
 
@@ -59,7 +54,7 @@ public class WelcomeActivity extends Activity implements View.OnClickListener, T
 
     private ImageView       welcomeDoneImage;
 
-    private FreeOTPApplication application;
+    private OTPVaultApplication application;
 
     //- For read and write backup/restore files.
     private String[] requiredPermissions = {
@@ -74,7 +69,7 @@ public class WelcomeActivity extends Activity implements View.OnClickListener, T
         super.onCreate(savedInstanceState);
         Utils.setTheme(this, false);
         setContentView(R.layout.welcome);
-        this.application = (FreeOTPApplication) this.getApplication();
+        this.application = (OTPVaultApplication) this.getApplication();
 
         this.appLogo = this.findViewById(R.id.app_logo);
 

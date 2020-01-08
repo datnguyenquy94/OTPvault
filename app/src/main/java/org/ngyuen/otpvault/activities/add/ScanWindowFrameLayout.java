@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.activities.add;
+package org.ngyuen.otpvault.activities.add;
 
 import android.content.Context;
 import android.util.AttributeSet;

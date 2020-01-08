@@ -1,13 +1,13 @@
-package org.fedorahosted.freeotp.broadcast;
+package org.ngyuen.otpvault.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.fedorahosted.freeotp.BackupManager;
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.common.Constants;
+import org.ngyuen.otpvault.BackupManager;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.common.Constants;
 
 public class BackupBroadcastTrigger extends BroadcastReceiver {
 
@@ -15,7 +15,7 @@ public class BackupBroadcastTrigger extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+        OTPVaultApplication application = (OTPVaultApplication) context.getApplicationContext();
 
         if (application.getSettingsPreference().getBoolean("allowBackupByBroastcastIntent", false)){
             Log.d(LOG_TAG, "BackupBroadcastTrigger has been triggered by a broastcast intent from third party apps.");

@@ -1,12 +1,11 @@
-package org.fedorahosted.freeotp.broadcast;
+package org.ngyuen.otpvault.broadcast;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
+import org.ngyuen.otpvault.OTPVaultApplication;
 
 public class ScreenListener extends BroadcastReceiver {
 
@@ -14,7 +13,7 @@ public class ScreenListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        FreeOTPApplication application = (FreeOTPApplication) context.getApplicationContext();
+        OTPVaultApplication application = (OTPVaultApplication) context.getApplicationContext();
         if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
             Log.d(LOG_TAG, "ACTION_SCREEN_OFF");
             application.onScreenTurnedOff();

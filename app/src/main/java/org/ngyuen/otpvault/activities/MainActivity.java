@@ -36,10 +36,9 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.activities;
+package org.ngyuen.otpvault.activities;
 
 import android.Manifest;
-import android.graphics.Color;
 
 import com.google.android.material.navigation.NavigationView;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -52,16 +51,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
-import org.fedorahosted.freeotp.adapters.TokenAdapter;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractAppCompatActivity;
-import org.fedorahosted.freeotp.broadcast.ScreenListener;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
-import org.fedorahosted.freeotp.activities.add.AddActivity;
-import org.fedorahosted.freeotp.activities.add.ScanActivity;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.activities.settings.SettingsActivity;
+import org.ngyuen.otpvault.adapters.TokenAdapter;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractAppCompatActivity;
+import org.ngyuen.otpvault.broadcast.ScreenListener;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.storage.TokenPersistence;
+import org.ngyuen.otpvault.activities.add.AddActivity;
+import org.ngyuen.otpvault.activities.add.ScanActivity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -81,13 +79,15 @@ import android.widget.GridView;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.ngyuen.otpvault.R;
+
 public class MainActivity extends AbstractAppCompatActivity implements OnMenuItemClickListener, View.OnClickListener {
 
     private String LOG_TAG = this.getClass().getName();
 
     private TokenAdapter mTokenAdapter;
     private TokenPersistence tokenPersistence;
-    public static final String ACTION_IMAGE_SAVED = "org.fedorahosted.freeotp.ACTION_IMAGE_SAVED";
+    public static final String ACTION_IMAGE_SAVED = "org.ngyuen.otpvault.ACTION_IMAGE_SAVED";
     private DataSetObserver mDataSetObserver;
     private final int PERMISSIONS_REQUEST_CAMERA = 1;
     private RefreshListBroadcastReceiver refreshListBroadcastReceiver;
@@ -120,7 +120,7 @@ public class MainActivity extends AbstractAppCompatActivity implements OnMenuIte
         this.lineColor = Utils.getThemeColor(this, R.attr.colorSchemeTertiary);
 
         this.application.startIdleChecker();
-        this.tokenPersistence = ((FreeOTPApplication)this.getApplication()).getTokenPersistence();
+        this.tokenPersistence = ((OTPVaultApplication)this.getApplication()).getTokenPersistence();
 
         //----- sidebar
         this.drawerLayout = (DrawerLayout)findViewById(R.id.mainLayout);

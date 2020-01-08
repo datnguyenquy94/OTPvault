@@ -1,11 +1,11 @@
-package org.fedorahosted.freeotp.activities.edit;
+package org.ngyuen.otpvault.activities.edit;
 
-import org.fedorahosted.freeotp.BuildConfig;
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.common.Utils;
+import org.ngyuen.otpvault.BuildConfig;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Utils;
 
 import android.os.Bundle;
 import android.view.View;
@@ -31,7 +31,7 @@ public class DeleteActivity extends AbstractActivity {
         if(BuildConfig.DEBUG && mTokenId < 0)
             throw new RuntimeException("Could not create Activity");
 
-        final Token token = ((FreeOTPApplication)this.getApplicationContext())
+        final Token token = ((OTPVaultApplication)this.getApplicationContext())
                 .getTokenPersistence().get(mTokenId);
         ((TextView) findViewById(R.id.issuer)).setText(token.getIssuer());
         ((TextView) findViewById(R.id.label)).setText(token.getLabel());
@@ -51,7 +51,7 @@ public class DeleteActivity extends AbstractActivity {
         findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
-                    ((FreeOTPApplication)DeleteActivity.this.getApplicationContext())
+                    ((OTPVaultApplication)DeleteActivity.this.getApplicationContext())
                             .getTokenPersistence().delete(mTokenId);
                     finish();
                 } catch (Exception e) {

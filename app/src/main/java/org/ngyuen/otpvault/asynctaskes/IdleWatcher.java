@@ -1,29 +1,21 @@
-package org.fedorahosted.freeotp.asynctaskes;
+package org.ngyuen.otpvault.asynctaskes;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.activities.ChangePasswordActivity;
-import org.fedorahosted.freeotp.activities.LoginActivity;
-import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
+import org.ngyuen.otpvault.OTPVaultApplication;
+import org.ngyuen.otpvault.activities.ChangePasswordActivity;
+import org.ngyuen.otpvault.activities.settings.SettingsActivity;
 
-import java.util.List;
-import java.util.concurrent.Executor;
-
-import static android.content.Context.ACTIVITY_SERVICE;
-
-public class IdleWatcher extends AsyncTask<FreeOTPApplication, Void, Void> {
-    private FreeOTPApplication application;
+public class IdleWatcher extends AsyncTask<OTPVaultApplication, Void, Void> {
+    private OTPVaultApplication application;
 
     @Override
-    protected Void doInBackground(FreeOTPApplication... freeOTPApplications) {
-        if (freeOTPApplications == null || freeOTPApplications.length <=0 || freeOTPApplications[0] == null)
+    protected Void doInBackground(OTPVaultApplication... OTPVaultApplications) {
+        if (OTPVaultApplications == null || OTPVaultApplications.length <=0 || OTPVaultApplications[0] == null)
             return null;
         else {
-            application = freeOTPApplications[0];
+            application = OTPVaultApplications[0];
             long lockTimeOut;
             try {
                 while(!this.isCancelled()){

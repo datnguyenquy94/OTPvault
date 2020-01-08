@@ -20,14 +20,13 @@
  * limitations under the License.
  */
 
-package org.fedorahosted.freeotp.activities.add;
+package org.ngyuen.otpvault.activities.add;
 
-import org.fedorahosted.freeotp.FreeOTPApplication;
-import org.fedorahosted.freeotp.R;
-import org.fedorahosted.freeotp.Token;
-import org.fedorahosted.freeotp.activities.abstractclasses.AbstractActivity;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
+import org.ngyuen.otpvault.R;
+import org.ngyuen.otpvault.Token;
+import org.ngyuen.otpvault.activities.abstractclasses.AbstractActivity;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.storage.TokenPersistence;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -57,7 +56,7 @@ public class ScanActivity extends AbstractActivity {
     private static ScanBroadcastReceiver receiver;
 
     public class ScanBroadcastReceiver extends BroadcastReceiver {
-        public static final String ACTION = "org.fedorahosted.freeotp.ACTION_CODE_SCANNED";
+        public static final String ACTION = "org.ngyuen.otpvault.ACTION_CODE_SCANNED";
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -76,6 +75,7 @@ public class ScanActivity extends AbstractActivity {
         try {
             token = new Token(text);
         } catch (Token.TokenUriInvalidException e) {
+            Toast.makeText(this, "Create token failed. Reason: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
 
@@ -83,14 +83,14 @@ public class ScanActivity extends AbstractActivity {
         this.unregisterReceiver(receiver);
 
         //check if token already exists
-//        if (((FreeOTPApplication)this.getApplicationContext())
+//        if (((OTPVaultApplication)this.getApplicationContext())
 //                .getTokenPersistence().tokenExists(token.getID())) {
 //            finish();
 //            return;
 //        }
 
         TokenPersistence.addAsync(this.application, token,
-                new org.fedorahosted.freeotp.common.Callback() {
+                new org.ngyuen.otpvault.common.Callback() {
                     @Override
                     public void success(Object obj) {
                         Token resultToken = (Token) obj;
