@@ -1,9 +1,8 @@
-package org.fedorahosted.freeotp;
+package org.ngyuen.otpvault;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -17,24 +16,20 @@ import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.preference.PreferenceManager;
 
-import androidx.security.crypto.EncryptedSharedPreferences;
-
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.fedorahosted.freeotp.activities.ChangePasswordActivity;
-import org.fedorahosted.freeotp.activities.LoginActivity;
-import org.fedorahosted.freeotp.activities.add.AddActivity;
-import org.fedorahosted.freeotp.activities.edit.EditActivity;
-import org.fedorahosted.freeotp.activities.settings.SettingsActivity;
-import org.fedorahosted.freeotp.asynctaskes.IdleWatcher;
-import org.fedorahosted.freeotp.common.Constants;
-import org.fedorahosted.freeotp.common.Utils;
-import org.fedorahosted.freeotp.storage.TokenDbHelper;
-import org.fedorahosted.freeotp.storage.TokenPersistence;
+import org.ngyuen.otpvault.activities.ChangePasswordActivity;
+import org.ngyuen.otpvault.activities.LoginActivity;
+import org.ngyuen.otpvault.activities.add.AddActivity;
+import org.ngyuen.otpvault.activities.edit.EditActivity;
+import org.ngyuen.otpvault.asynctaskes.IdleWatcher;
+import org.ngyuen.otpvault.common.Constants;
+import org.ngyuen.otpvault.common.Utils;
+import org.ngyuen.otpvault.storage.TokenDbHelper;
+import org.ngyuen.otpvault.storage.TokenPersistence;
 
 import java.io.File;
-import java.util.Map;
 
 @SuppressLint("ApplySharedPref")
 public class FreeOTPApplication extends Application implements LifecycleObserver {
