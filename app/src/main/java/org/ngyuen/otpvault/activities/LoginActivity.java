@@ -98,6 +98,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             case R.id.focusPasswordNumberOnlyButton: {
                 this.passwordText.setInputType(InputType.TYPE_CLASS_NUMBER);
                 this.passwordText.setText("");
+                this.passwordText.setTransformationMethod(new PasswordTransformationMethod());
                 this.passwordText.requestFocus();
                 ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
                         .showSoftInput(this.passwordText, InputMethodManager.SHOW_IMPLICIT);
@@ -106,6 +107,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             case R.id.focusPasswordTextOnlyButton: {
                 this.passwordText.setInputType(InputType.TYPE_CLASS_TEXT);
                 this.passwordText.setText("");
+                this.passwordText.setTransformationMethod(new PasswordTransformationMethod());
                 this.passwordText.requestFocus();
                 ((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
                         .showSoftInput(this.passwordText, InputMethodManager.SHOW_IMPLICIT);

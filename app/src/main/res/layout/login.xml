@@ -44,7 +44,7 @@
             android:focusedByDefault="true"
             android:imeOptions="actionDone"
             android:singleLine="true"
-            android:text="12345678"/>
+            android:text=""/>
 
         <CheckBox
             android:id="@+id/showPasswordCheckBox"
