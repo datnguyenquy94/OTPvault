@@ -47,7 +47,7 @@
                 android:layout_height="48dp"
                 android:layout_toRightOf="@id/image"
                 android:layout_marginTop="4dp"
-                android:hint="jdoe@example.com"
+                android:hint="Google/Facebook/Amazon/..."
                 android:inputType="textNoSuggestions"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
@@ -59,7 +59,7 @@
                 android:layout_toRightOf="@id/image"
                 android:layout_below="@id/issuer"
                 android:layout_marginBottom="4dp"
-                android:hint="label"
+                android:hint="Username/Account/Label/..."
                 android:inputType="textNoSuggestions"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:digits="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .@(){}|+=-"/>
