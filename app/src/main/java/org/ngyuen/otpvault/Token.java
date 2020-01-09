@@ -65,7 +65,7 @@ public class Token {
     private String image;//- the orignal image
     private String type;
     private String algo;
-    private byte[] secret;
+    private String secret;
     private int digits;
     private long counter;
     private int period;
@@ -145,10 +145,10 @@ public class Token {
         }
 
         try {
-            String s = uri.getQueryParameter("secret");
-            secret = Base32String.decode(s);
-            if (secret.length < 16)//- secret length must be at least 128bit
-                throw new TokenUriInvalidException("Bad secret input. Secret length must be at least 128bits. Current="+secret.length*8+"bits");
+            this.secret = uri.getQueryParameter("secret");
+            byte[] bytes = Base32String.decode(this.secret);//- Test secret
+            if (bytes.length < 16)//- secret length must be at least 128bit
+                throw new TokenUriInvalidException("Bad secret input. Secret length must be at least 128bits. Current="+bytes.length*8+"bits");
         } catch (DecodingException e) {
             throw new TokenUriInvalidException("Bad secret input");
         } catch (NullPointerException e) {
@@ -196,7 +196,8 @@ public class Token {
         // Create the HMAC
         try {
             Mac mac = Mac.getInstance("Hmac" + algo);
-            mac.init(new SecretKeySpec(secret, "Hmac" + algo));
+            byte[] bytes = Base32String.decode(this.secret);
+            mac.init(new SecretKeySpec(bytes, "Hmac" + algo));
 
             // Do the hashing
             byte[] digest = mac.doFinal(bb.array());
@@ -228,6 +229,8 @@ public class Token {
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (DecodingException e){
             e.printStackTrace();
         }
 
@@ -285,7 +288,7 @@ public class Token {
     public int getDigits() {
         return digits;
     }
-    public byte[] getSecret() {
+    public String getSecret() {
         return secret;
     }
     public int getPeriod() {
@@ -338,7 +341,7 @@ public class Token {
         String issuerLabel = !issuer.equals("") ? issuer + ":" + label : label;
 
         Uri.Builder builder = new Uri.Builder().scheme("otpauth").path(issuerLabel)
-                .appendQueryParameter("secret", Base32String.encode(secret))
+                .appendQueryParameter("secret", secret)
                 .appendQueryParameter("issuer", issuer)
                 .appendQueryParameter("algorithm", algo)
                 .appendQueryParameter("digits", Integer.toString(digits))
@@ -414,7 +417,7 @@ public class Token {
             return false;
         else if (this.period != token.period)
             return false;
-        else if (!Arrays.equals(this.secret, token.secret))
+        else if (this.secret.compareTo(token.secret) != 0)
             return false;
         else if (this.type.compareTo(token.type) != 0)
             return false;

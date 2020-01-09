@@ -67,9 +67,13 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
     private Token token;
     private final int REQUEST_IMAGE_OPEN = 1;
 
-    private void discardAndShowDefaultImage(String base64) {
+    private void discardAndShowDefaultImage() {
         mNewImage = null;
-        Utils.base64String2ImageView(base64, mImage);
+        if (mBase64ImageDefault != null && !mBase64ImageDefault.isEmpty()){
+            Utils.base64String2ImageView(mBase64ImageDefault, mImage);
+        } else {
+            mImage.setImageResource(R.mipmap.ic_freeotp_logo_foreground);
+        }
         onTextChanged(null, 0, 0, 0);
     }
 
@@ -126,7 +130,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
         mImage.setOnClickListener(this);
 
         // Setup initial state.
-        discardAndShowDefaultImage(mBase64ImageDefault);
+        discardAndShowDefaultImage();
         mLabel.setText(mLabelCurrent);
         mIssuer.setText(mIssuerCurrent);
         mIssuer.setSelection(mIssuer.getText().length());
@@ -181,7 +185,7 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 mLabel.setText(mLabelDefault);
                 mIssuer.setText(mIssuerDefault);
                 mIssuer.setSelection(mIssuer.getText().length());
-                discardAndShowDefaultImage(mBase64ImageDefault);
+                discardAndShowDefaultImage();
                 break;
 
             case R.id.save:

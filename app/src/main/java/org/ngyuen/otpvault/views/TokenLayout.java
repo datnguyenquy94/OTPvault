@@ -117,7 +117,10 @@ public class TokenLayout extends FrameLayout implements View.OnClickListener, Ru
         mPlaceholder = new String(placeholder);
 
         // Show the image.
-        Utils.base64String2ImageView(token.getImage(), mImage);
+        if (token.getImage() != null && !token.getImage().isEmpty())
+            Utils.base64String2ImageView(token.getImage(), mImage);
+        else
+            mImage.setImageResource(R.mipmap.ic_freeotp_logo_foreground);
 
         // Set the labels.
         mLabel.setText(token.getLabel());

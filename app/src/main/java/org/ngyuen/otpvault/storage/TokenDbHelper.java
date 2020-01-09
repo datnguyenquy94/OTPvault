@@ -29,7 +29,7 @@ public class TokenDbHelper extends SQLiteOpenHelper {
                     Token.TokenEntry.COLUMN_NAME_IMAGE + TEXT_TYPE + "," +
                     Token.TokenEntry.COLUMN_NAME_TYPE + TEXT_TYPE + "," +
                     Token.TokenEntry.COLUMN_NAME_ALGO + TEXT_TYPE + "," +
-                    Token.TokenEntry.COLUMN_NAME_SECRET + BLOB_TYPE + "," +
+                    Token.TokenEntry.COLUMN_NAME_SECRET + TEXT_TYPE + "," +
                     Token.TokenEntry.COLUMN_NAME_DIGITS + INTEGER_TYPE + "," +
                     Token.TokenEntry.COLUMN_NAME_COUNTER + INTEGER_TYPE + "," +
                     Token.TokenEntry.COLUMN_NAME_PERIOD + INTEGER_TYPE + "," +
