@@ -140,7 +140,7 @@ public class TokenAdapter extends BaseReorderableAdapter {
                     TokenCode codes = token.generateCodes();
                     //save token. Image wasn't changed here, so just save it in sync
                     ((OTPVaultApplication)ctx.getApplicationContext())
-                            .getTokenPersistence().update(token.getId(), token);
+                            .getTokenPersistence().update(token);
 
                     // Copy code to clipboard.
                     mClipMan.setPrimaryClip(ClipData.newPlainText(null, codes.getCurrentCode()));

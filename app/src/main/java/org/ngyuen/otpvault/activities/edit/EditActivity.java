@@ -197,7 +197,6 @@ public class EditActivity extends AbstractActivity implements TextWatcher, View.
                 if (mNewImage != null)
                     token.setImage(mNewImage.toString());
                 TokenPersistence.updateAsync(application,
-                        mTokenId,
                         token,
                         new Callback() {
                             @Override

@@ -94,8 +94,8 @@ public class TokenPersistence {
         this.tokenDbStorage.add(newToken);
     }
 
-    public Token update(long tokenIndex, Token editedToken) throws Exception {
-        this.tokenDbStorage.update(tokenIndex, editedToken);
+    public Token update(Token editedToken) throws Exception {
+        this.tokenDbStorage.update(editedToken);
         return editedToken;
     }
 
@@ -105,7 +105,7 @@ public class TokenPersistence {
             fromPosition >= this.tokenIndex.size() || toPosition >= this.tokenIndex.size() )
             throw new Exception("Unknown internal error.");
         else
-            this.tokenDbStorage.move(this.tokenIndex.get(fromPosition), this.tokenIndex.get(toPosition));
+            this.tokenDbStorage.swap(this.tokenIndex.get(fromPosition), this.tokenIndex.get(toPosition));
     }
 
     public void delete(int position) throws Exception {
@@ -145,7 +145,6 @@ public class TokenPersistence {
      * @param editedToken Token (with Image, Image will be saved by the async task)
      */
     public static void updateAsync(Context context,
-                                   final long tokenIndex,
                                    final Token editedToken,
                                    final Callback callback) {
 
@@ -157,7 +156,7 @@ public class TokenPersistence {
                 //we downloaded the image, now save/update it normally
                 try {
                     Token resultToken = ((OTPVaultApplication)returnParams.context.getApplicationContext())
-                            .getTokenPersistence().update(tokenIndex, returnParams.getToken());
+                            .getTokenPersistence().update(returnParams.getToken());
                     callback.success(resultToken);
                 } catch (Exception e) {
                     e.printStackTrace();

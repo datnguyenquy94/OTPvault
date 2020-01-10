@@ -211,12 +211,15 @@ public class TokenDbStorage {
         }
     }
 
-    public void update(Long id, Token modifiedToken) throws Exception{
+    //- Only update label-fields.
+    public void update(Token modifiedToken) throws Exception{
         SQLiteDatabase sqLiteDatabase = this.application.getDbStorage();
         if (sqLiteDatabase != null) {
 
             if (modifiedToken == null)
                 throw new Exception("ModifiedToken is null.");
+            else if (!this.exist(modifiedToken.getId()))
+                throw new Exception("Token not found in database.");
             else if (modifiedToken.getIssuer() == null || modifiedToken.getIssuer().isEmpty())
                 throw new Exception("ModifiedToken's issuer is empty.");
             else if (modifiedToken.getLabel() == null || modifiedToken.getLabel().isEmpty())
@@ -228,22 +231,15 @@ public class TokenDbStorage {
             values.put(Token.TokenEntry.COLUMN_NAME_ISSUER, modifiedToken.getIssuer());
             values.put(Token.TokenEntry.COLUMN_NAME_LABEL, modifiedToken.getLabel());
             values.put(Token.TokenEntry.COLUMN_NAME_COUNTER, modifiedToken.getCounter());
-//            values.put(Token.TokenEntry.COLUMN_NAME_ID, modifiedToken.getId());
 
             if (modifiedToken.getImage() != null)
                 values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, modifiedToken.getImage());
             else
                 values.put(Token.TokenEntry.COLUMN_NAME_IMAGE, "");
 
-//            values.put(Token.TokenEntry.COLUMN_NAME_TYPE, modifiedToken.getType());
-//            values.put(Token.TokenEntry.COLUMN_NAME_ALGO, modifiedToken.getAlgo());
-//            values.put(Token.TokenEntry.COLUMN_NAME_SECRET, Utils.bytesToString(modifiedToken.getSecret()));
-//            values.put(Token.TokenEntry.COLUMN_NAME_DIGITS, modifiedToken.getDigits());
-//            values.put(Token.TokenEntry.COLUMN_NAME_PERIOD, modifiedToken.getPeriod());
-
             long result = sqLiteDatabase.update(Token.TokenEntry.TABLE_NAME,
                     values,
-                    Token.TokenEntry.COLUMN_NAME_ID+"=?", new String[] { id.toString() });
+                    Token.TokenEntry.COLUMN_NAME_ID+"=?", new String[] { Long.toString(modifiedToken.getId()) });
 
             if (result < 0)
                 throw new Exception("Unable to update token.");
@@ -352,35 +348,82 @@ public class TokenDbStorage {
         }
     }
 
-    public void move(Long tokenIndex1, Long tokenIndex2) throws Exception {
-        if (tokenIndex1.equals(tokenIndex2))
+//    public void move(Long tokenIndex1, Long tokenIndex2) throws Exception {
+//        if (tokenIndex1.equals(tokenIndex2))
+//            return;
+//        SQLiteDatabase sqLiteDatabase = this.application.getDbStorage();
+//        if (sqLiteDatabase != null) {
+//            Token token1 = this.get(tokenIndex1);
+//            Token token2 = this.get(tokenIndex2);
+//
+//            if (token1 == null || token2 == null)
+//                throw new Exception("Unable to get token data. TokenIndex1="+tokenIndex1+ ", TokenIndex2="+tokenIndex2);
+//
+//            //- Switch tokens index.
+//            long tmp = token1.getId();
+//            token1.setId(token2.getId());
+//            token2.setId(tmp);
+//
+//            //- Save tokens with index had been switched.
+//
+//            //- To avoid UNIQUE constraint on Issuer and Label when switch. Set token1's issuer to something not exsit in database yet.
+//            String originalIssuer = token1.getIssuer();
+//            while(this.exist(token1.getIssuer(), token1.getLabel()) != null){
+//                token1.setIssuer(token1.getIssuer()+".tmp");
+//            }
+//            this.update(token1.getId(), token1);//- Save token1 with temporary issuer.
+//            this.update(token2.getId(), token2);//- Save token2
+//
+//            token1.setIssuer(originalIssuer);//- Restore token1 issuer.
+//            this.update(token1.getId(), token1);//- And save it.
+//
+//        }
+//    }
+
+    public void swap(Long token1_Original_ID, Long token2_Original_ID) throws Exception {
+        if (token1_Original_ID == null || token2_Original_ID == null)
             return;
+        else if (token1_Original_ID.equals(token2_Original_ID))
+            return;
+
         SQLiteDatabase sqLiteDatabase = this.application.getDbStorage();
         if (sqLiteDatabase != null) {
-            Token token1 = this.get(tokenIndex1);
-            Token token2 = this.get(tokenIndex2);
+            Long temporaryId = null;
 
-            if (token1 == null || token2 == null)
-                throw new Exception("Unable to get token data. TokenIndex1="+tokenIndex1+ ", TokenIndex2="+tokenIndex2);
+            if (!this.exist(token1_Original_ID) || !this.exist(token2_Original_ID))
+                throw new Exception("Token data not found. Token1_Original_ID="+token1_Original_ID+ ", Token2_Original_ID="+token2_Original_ID);
+
+            Cursor cursor = sqLiteDatabase.rawQuery(
+                    "SELECT "+Token.TokenEntry.COLUMN_NAME_ID+" FROM "+ Token.TokenEntry.TABLE_NAME +" ORDER BY "+Token.TokenEntry.COLUMN_NAME_ID+" DESC LIMIT 1",
+                    new String[]{});
+            if (cursor.getCount() == 1){
+                cursor.moveToNext();
+                temporaryId = cursor.getLong(0)+1;
+            }
+            cursor.close();
 
             //- Switch tokens index.
-            long tmp = token1.getId();
-            token1.setId(token2.getId());
-            token2.setId(tmp);
+            if (temporaryId != null && temporaryId > 1){
+                sqLiteDatabase.beginTransaction();
+                try {
+                    String sql = "update " + Token.TokenEntry.TABLE_NAME + " set " + Token.TokenEntry.COLUMN_NAME_ID+ "=? where "+ Token.TokenEntry.COLUMN_NAME_ID+"=?";
+                    sqLiteDatabase.execSQL(sql, new String[] {
+                            Long.toString(temporaryId), Long.toString(token1_Original_ID)
+                    });
 
-            //- Save tokens with index had been switched.
+                    sqLiteDatabase.execSQL(sql, new String[] {
+                            Long.toString(token1_Original_ID), Long.toString(token2_Original_ID)
+                    });
 
-            //- To avoid UNIQUE constraint on Issuer and Label when switch. Set token1's issuer to something not exsit in database yet.
-            String originalIssuer = token1.getIssuer();
-            while(this.exist(token1.getIssuer(), token1.getLabel()) != null){
-                token1.setIssuer(token1.getIssuer()+".tmp");
+                    sqLiteDatabase.execSQL(sql, new String[] {
+                            Long.toString(token2_Original_ID), Long.toString(temporaryId)
+                    });
+
+                    sqLiteDatabase.setTransactionSuccessful();
+                } finally {
+                    sqLiteDatabase.endTransaction();
+                }
             }
-            this.update(token1.getId(), token1);//- Save token1 with temporary issuer.
-            this.update(token2.getId(), token2);//- Save token2
-
-            token1.setIssuer(originalIssuer);//- Restore token1 issuer.
-            this.update(token1.getId(), token1);//- And save it.
-
         }
     }
 
