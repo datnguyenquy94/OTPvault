@@ -73,7 +73,7 @@
         <SwitchPreferenceCompat
             app:key="allowBackupByBroastcastIntent"
             app:defaultValue="true"
-            app:title="Allow backup by broastcast from thirdparty apps."
+            app:title="Allow backup by broadcast from thirdparty apps."
             app:summary="Automatic backup tokens when receive broadcast intent from thirdparty apps (Example: Tasker)."/>
 
     </PreferenceCategory>

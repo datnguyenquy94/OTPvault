@@ -35,11 +35,6 @@
             android:text="@string/about_version" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/about_copyright"/>
-
-        <TextView
             android:id="@+id/about_license"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -54,10 +49,19 @@
             android:text="@string/about_website" />
 
         <TextView
+            android:id="@+id/about_freeotp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/about_freeotp" />
+
+        <TextView
             android:id="@+id/about_icons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/about_icons" />
+
+
     </LinearLayout>
 </ScrollView>

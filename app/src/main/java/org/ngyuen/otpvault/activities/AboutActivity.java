@@ -76,5 +76,11 @@ public class AboutActivity extends AbstractActivity {
         tv = findViewById(R.id.about_website);
         tv.setMovementMethod(LinkMovementMethod.getInstance());
         tv.setText(Html.fromHtml(swebsite));
+
+        String lwebsite2 = res.getString(R.string.link_freeotp_website);
+        String swebsite2 = res.getString(R.string.about_freeotp, lwebsite2);
+        tv = findViewById(R.id.about_freeotp);
+        tv.setMovementMethod(LinkMovementMethod.getInstance());
+        tv.setText(Html.fromHtml(swebsite2));
     }
 }

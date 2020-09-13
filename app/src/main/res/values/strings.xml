@@ -23,13 +23,15 @@
     <string name="settings">Settings</string>
 
     <string name="about_otpvault">About OTPvault</string>
-    <string name="about_version">FreeOTP Version %1$s (%2$d)</string>
-    <string name="about_copyright">© 2013 - Red Hat, Inc., et al.</string>
-    <string name="about_license">FreeOTP is licensed under %1$s.</string>
-    <string name="about_website">For more information, see our %s.</string>
+    <string name="about_version">OTPvault Version %1$s (%2$d)</string>
+    <string name="about_license">OTPvault is licensed under %1$s.</string>
+    <string name="about_website">For more information, see our repo at %s.</string>
+    <string name="about_website2">https://github.com/datnguyenquy94/OTPvault</string>
     <string name="about_icons">Some icons used by this application are reproduced from work created and shared by the Android Open Source Project and used according to terms described in the Creative Commons 2.5 Attribution License.</string>
 
-    <string name="link_website">&lt;a href=&quot;http://freeotp.github.io&quot;&gt;website&lt;/a&gt;</string>
+    <string name="about_freeotp">OTPvault is a fork of FreeOTP, licensed under APACHE 2.0 by Red Hat, Inc. %s.</string>
+    <string name="link_freeotp_website">&lt;a href=&quot;http://freeotp.github.io&quot;&gt;website&lt;/a&gt;</string>
+    <string name="link_website">&lt;a href=&quot;https://github.com/datnguyenquy94/OTPvault&quot;&gt;github&lt;/a&gt;</string>
     <string name="link_apache2">&lt;a href=&quot;http://www.apache.org/licenses/LICENSE-2.0.html&quot;&gt;Apache 2.0&lt;/a&gt;</string>
 
     <string name="error_camera_open">Error while opening camera!</string>
